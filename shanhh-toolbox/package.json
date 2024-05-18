@@ -12,17 +12,29 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "shanhh-toolbox",
+      "name": "index",
       "title": "ShanHH Toolbox",
-      "description": "",
+      "description": "Toolbox for ShanHH",
       "mode": "view"
     }
   ],
+  "preferences": [
+    {
+      "name": "authFile",
+      "description": "TOtp Auth File",
+      "type": "file",
+      "required": true,
+      "title": "TOTP Auth File"
+    }
+  ],
   "dependencies": {
-    "@raycast/api": "^1.74.1"
+    "@raycast/api": "^1.74.1",
+    "ini": "^4.1.2",
+    "otpauth": "^9.2.4"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.6",
+    "@types/ini": "^4.1.0",
     "@types/node": "20.8.10",
     "@types/react": "18.2.27",
     "eslint": "^8.51.0",
