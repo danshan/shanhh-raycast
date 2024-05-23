@@ -2,7 +2,7 @@ import { usePromise } from "@raycast/utils";
 import { showToast, Toast } from "@raycast/api";
 import { searchBtsow, searchBtsowDetail } from "../clients/btsow-client";
 import { parseBtsowDetail, parseBtsowSearchResults } from "../utils/btso-utils";
-import { BtsowDetailData } from "../types/search.dt";
+import { BtsowDetailData } from "../types/btsow-search.dt";
 import { useEffect, useState } from "react";
 
 export function useBtsowSearch(searchText: string) {

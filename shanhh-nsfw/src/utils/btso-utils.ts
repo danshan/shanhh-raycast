@@ -1,10 +1,9 @@
 import { parse } from "node-html-parser";
-import { BtsowDetailData, BtsowDetailFile, BtsowSearchResult } from "../types/search.dt";
+import { BtsowDetailData, BtsowDetailFile, BtsowSearchResult } from "../types/btsow-search.dt";
 
 export function parseBtsowSearchResults(html: string) {
   const doc = parse(html);
   const items = doc.querySelectorAll(".data-list .row:not(.hidden-xs)");
-  console.log("items", items);
   items.forEach((item) => {
     console.log(item.innerHTML);
   });

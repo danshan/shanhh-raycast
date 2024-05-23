@@ -6,12 +6,6 @@ export interface BtsowSearchResult {
   date: string;
 }
 
-export interface DetailState {
-  isLoading: boolean;
-  error?: string;
-  datas?: BtsowDetailData;
-}
-
 export interface BtsowDetailData {
   title: string;
   magnet: string;

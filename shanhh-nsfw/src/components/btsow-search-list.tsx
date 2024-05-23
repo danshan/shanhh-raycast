@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useBtsowSearch } from "../hooks/use-btsow-search";
 import { Action, ActionPanel, Icon, List } from "@raycast/api";
-import { BtsowSearchResult } from "../types/search.dt";
+import { BtsowSearchResult } from "../types/btsow-search.dt";
 import { BtsowSearchDetail } from "./btsow-search-detail";
 
 export function BtsowSearchList(props: { searchText: string }) {

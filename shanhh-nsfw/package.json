@@ -28,6 +28,15 @@
       "link": "https://tellme.pw/btsow",
       "required": true,
       "default": "https://btsow.motorcycles"
+    },
+    {
+      "name": "javbusHost",
+      "type": "textfield",
+      "title": "JavBus Site",
+      "description": "input site name.",
+      "placeholder": "https://www.javbus.com",
+      "required": true,
+      "default": "https://www.javbus.com"
     }
   ],
   "dependencies": {

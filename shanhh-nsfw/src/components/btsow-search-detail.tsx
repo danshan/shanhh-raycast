@@ -1,4 +1,4 @@
-import { BtsowDetailData, BtsowSearchResult } from "../types/search.dt";
+import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search.dt";
 import { Action, ActionPanel, Color, Detail } from "@raycast/api";
 import React from "react";
 import { useBtsowDetail } from "../hooks/use-btsow-search";
@@ -42,11 +42,11 @@ export function BtsowSearchDetail(props: { searchResult: BtsowSearchResult }) {
 function getMarkdown(detail?: BtsowDetailData) {
   let markdown = "Loading...";
   if (detail) {
-    markdown = `### ${detail.title}\n\n`;
+    markdown = `## ${detail.title}\n\n`;
     markdown += `> ${detail.magnet}\n\n`;
     markdown += `---\n\n`;
     if (detail.files.length > 0) {
-      markdown += "#### File Name & Size\n\n";
+      markdown += "### File Name & Size\n\n";
       detail.files.forEach((item) => {
         markdown += `* ${getEmoji(item.type)} ${item.name} - [${item.size}]\n`;
       });
