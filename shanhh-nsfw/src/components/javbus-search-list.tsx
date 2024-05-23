@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Action, ActionPanel, List } from "@raycast/api";
-import { useJavbusSearch } from "../hooks/use-javbus-search";
+import { useJavbusSearchText, useJavbusSearchUrl } from "../hooks/use-javbus-search";
 import { JavbusSearchResult } from "../types/javbus-search.dt";
 import { v4 as uuidv4 } from "uuid";
 import { JavbusSearchDetail } from "./javbus-search-detail";
 
 
-export function JavbusSearchList(props: { searchText: string }) {
+export function JavbusSearchTextList(props: { searchText: string }) {
   const [searchText, setSearchText] = useState<string>(props.searchText);
   const [type, setType] = useState<string>(props.searchText);
-  const { isLoading, data: searchResults, pagination } = useJavbusSearch(type, searchText);
+  const { isLoading, data: searchResults, pagination } = useJavbusSearchText(type, searchText);
 
   return (
     <List
@@ -17,7 +17,7 @@ export function JavbusSearchList(props: { searchText: string }) {
       filtering={false}
       searchText={searchText}
       onSearchTextChange={setSearchText}
-      navigationTitle="Search Btsow"
+      navigationTitle="Search Javbus"
       searchBarPlaceholder="Keywords"
       isShowingDetail={(searchResults || [])?.length > 0}
       pagination={pagination}
@@ -29,31 +29,56 @@ export function JavbusSearchList(props: { searchText: string }) {
       }
       throttle
     >
-      {
-        (searchResults || []).length == 0 ? (
-            <List.EmptyView
-              title="No results"
-              description="Try another search term"
-            />
-          ) :
-          (searchResults || []).map((result: JavbusSearchResult) => (
-              <List.Item key={result.url} title={result.title} accessories={[{ text: result.code }]}
-                         detail={<JavbusSearchThumbnail result={result} />}
-                         actions={
-                           <ActionPanel>
-                             <Action.Push title="Open in Browser" target={<JavbusSearchDetail searchResult={result} />} />
-                             <Action.OpenInBrowser title="Open in Browser" url={result.url} />
-                             <Action.CopyToClipboard title={`Copy ${result.code}`} content={result.code} />
-                             <Action.CopyToClipboard title={`Copy ${result.title}`} content={result.title} />
-                           </ActionPanel>
-                         }
-              />
-            )
-          )
-      }
+      <JavbusSearchListItems searchResults={searchResults} />
     </List>
   );
 }
+
+
+export function JavbusSearchUrlList(props: { url: string }) {
+  const { isLoading, data: searchResults, pagination } = useJavbusSearchUrl(props.url);
+
+  return (
+    <List
+      isLoading={isLoading}
+      filtering={false}
+      navigationTitle="Search Javbus"
+      searchBarPlaceholder="Keywords"
+      isShowingDetail={(searchResults || [])?.length > 0}
+      pagination={pagination}
+      throttle
+    >
+      <JavbusSearchListItems searchResults={searchResults} />
+    </List>
+  );
+}
+
+function JavbusSearchListItems(props: { searchResults?: JavbusSearchResult[] }) {
+  return (
+    (props.searchResults || []).length == 0 ? (
+        <List.EmptyView
+          title="No results"
+          description="Try another search term"
+        />
+      ) :
+      (props.searchResults || []).map((result: JavbusSearchResult) => (
+          <List.Item key={result.url} title={result.title} accessories={[{ text: result.code }]}
+                     detail={<JavbusSearchThumbnail result={result} />}
+                     actions={
+                       <ActionPanel>
+                         <Action.Push title="Show Detail" target={<JavbusSearchDetail url={result.url} />} />
+                         <Action.OpenInBrowser title="Open in Browser" url={result.url} />
+                         <Action.CopyToClipboard title="Copy Url" content={result.url} />
+                         <Action.CopyToClipboard title={`Copy ${result.code}`} content={result.code} />
+                         <Action.CopyToClipboard title={`Copy ${result.title}`} content={result.title} />
+                       </ActionPanel>
+                     }
+          />
+        )
+      )
+  );
+}
+
 
 function JavbusSearchThumbnail(props: { result: JavbusSearchResult }) {
   const result = props.result;

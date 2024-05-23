@@ -12,11 +12,17 @@ export function getHost() {
   return preps.javbusHost;
 }
 
-export async function searchJavbus(page: number, type: string, searchText: string) {
+export async function searchJavbusText(page: number, type: string, searchText: string) {
   const targetHost = type === "有码" ? host : uncensoredHost;
-  const url = `${targetHost}/${searchText}/${page + 1}`;
-  console.log("search_url", url);
-  const response = await got.get(url, {
+  const url = `${targetHost}/${searchText}`;
+  return searchJavbusUrl(page, url);
+}
+
+export async function searchJavbusUrl(page: number, url: string) {
+  const javbusUrl = `${url}/${page + 1}`;
+  console.log("search_url", javbusUrl);
+  // header: -H 'cookie: age=verified; dv=1'
+  const response = await got.get(javbusUrl, {
     // skip age validation
     followRedirect: false
   });

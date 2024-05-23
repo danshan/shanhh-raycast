@@ -1,5 +1,5 @@
 import { parse } from "node-html-parser";
-import { JavbusDetailData, JavbusMagnet, JavbusSearchResult } from "../types/javbus-search.dt";
+import { JavbusDetailData, JavbusDetailLabel, JavbusMagnet, JavbusSearchResult } from "../types/javbus-search.dt";
 import { getHost } from "../clients/javbus-client";
 
 export function parseJavbusSearchResults(html: string) {
@@ -8,11 +8,18 @@ export function parseJavbusSearchResults(html: string) {
   // items.forEach((item) => {
   // console.log(item.innerHTML);
   // });
-  const list = Array.from(items).map((item) => {
+
+  const list: JavbusSearchResult[] = [];
+  Array.from(items).forEach((item) => {
     const url = item.querySelector(".movie-box")?.getAttribute("href");
     const thumbnail = getHost() + item.querySelector(".photo-frame > img")?.getAttribute("src");
     const title = item.querySelector(".photo-frame > img")?.getAttribute("title");
     const code = item.querySelector("date")?.text;
+
+    if (!code) {
+      return;
+    }
+
     const date = item.querySelectorAll("date")?.[1].text;
     const tags = item.querySelectorAll(".item-tag .btn").map((tag) => tag.text);
     const result: JavbusSearchResult = {
@@ -24,7 +31,7 @@ export function parseJavbusSearchResults(html: string) {
       tags: tags || []
     };
     console.log("result", result);
-    return result;
+    list.push(result);
   });
   return list;
 }
@@ -40,10 +47,11 @@ export function parseJavbusDetail(url: string, html: string) {
   let code = "";
   let date = "";
   let duration = "";
-  let director = "";
-  let producer = "";
-  let publisher = "";
-  const category: string[] = [];
+  let director: JavbusDetailLabel = { title: "", url: "" };
+  let producer: JavbusDetailLabel = { title: "", url: "" };
+  let publisher: JavbusDetailLabel = { title: "", url: "" };
+  let series: JavbusDetailLabel = { title: "", url: "" };
+  const category: JavbusDetailLabel[] = [];
   items.forEach((item) => {
     const key = item.text;
     if (key === "識別碼:") {
@@ -53,19 +61,41 @@ export function parseJavbusDetail(url: string, html: string) {
     } else if (key === "長度:") {
       duration = item.parentNode.text.trim();
     } else if (key === "導演:") {
-      director = item.nextElementSibling?.text || "";
+      director = {
+        title: item.nextElementSibling?.text || "",
+        url: item.nextElementSibling?.getAttribute("href") || ""
+      };
     } else if (key === "製作商:") {
-      producer = item.nextElementSibling?.text || "";
+      producer = {
+        title: item.nextElementSibling?.text || "",
+        url: item.nextElementSibling?.getAttribute("href") || ""
+      };
     } else if (key === "發行商:") {
-      publisher = item.nextElementSibling?.text || "";
+      publisher = {
+        title: item.nextElementSibling?.text || "",
+        url: item.nextElementSibling?.getAttribute("href") || ""
+      };
+    } else if (key === "系列:") {
+      series = {
+        title: item.nextElementSibling?.text || "",
+        url: item.nextElementSibling?.getAttribute("href") || ""
+      };
     } else if (key === "類別:") {
-      item.nextElementSibling?.querySelectorAll("a").forEach((tag) => category.push(tag.text.trim()));
+      item.nextElementSibling?.querySelectorAll("a").forEach((tag) =>
+        category.push({
+          title: tag.text.trim(),
+          url: tag.getAttribute("href") || ""
+        })
+      );
     }
   });
 
-  const actors: string[] = [];
+  const actors: JavbusDetailLabel[] = [];
   doc.querySelector(".info .star-show")?.nextElementSibling?.nextElementSibling?.querySelectorAll("a").forEach((item) => {
-    actors.push(item.text.trim());
+    actors.push({
+      title: item.text.trim(),
+      url: item.getAttribute("href") || ""
+    });
   });
 
   const images: string[] = [];
@@ -111,6 +141,7 @@ export function parseJavbusDetail(url: string, html: string) {
     director: director || "",
     producer: producer || "",
     publisher: publisher || "",
+    series: series || "",
     category: category,
     actors: actors,
     images: images
