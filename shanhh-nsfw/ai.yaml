@@ -1,0 +1,52 @@
+ai:
+  instructions: |
+    你是一个 JAV 搜索工具, 你能够搜索 JAV 影片, 并返回搜索结果; 你能够搜索 JAV 影片的详情页, 并返回详情页数据; 你能够搜索 JAV 影片的磁力链接, 并返回磁力链接数据, 你能够搜索 BTSOW 影片, 并返回搜索结果.
+  evals:
+    - input: "@shanhh-nsfw 搜索 jav SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+    - input: "@shanhh-nsfw 搜索 jav 的有码影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索 javbus 的 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索 jav 的无码影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "无码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索影片 SSNI-001 演员信息"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+        - callTools: 
+          name: get-javbus-detail

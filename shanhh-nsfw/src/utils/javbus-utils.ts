@@ -2,7 +2,7 @@ import { parse } from "node-html-parser";
 import { JavbusDetailData, JavbusDetailLabel, JavbusMagnet, JavbusSearchResult } from "../types/javbus-search.dt";
 import { getHost } from "../clients/javbus-client";
 
-export function parseJavbusSearchResults(html: string) {
+export function parseJavbusSearchResults(html: string): JavbusSearchResult[] {
   const doc = parse(html);
   const items = doc.querySelectorAll("#waterfall > .item");
   // items.forEach((item) => {
@@ -36,7 +36,7 @@ export function parseJavbusSearchResults(html: string) {
   return list;
 }
 
-export function parseJavbusDetail(url: string, html: string) {
+export function parseJavbusDetail(url: string, html: string): JavbusDetailData {
   const doc = parse(html);
   const thumbnail = getHost() + doc.querySelector(".bigImage img")?.getAttribute("src");
   const title = doc.querySelector(".bigImage img")?.getAttribute("title");
@@ -150,7 +150,7 @@ export function parseJavbusDetail(url: string, html: string) {
   return result;
 }
 
-export function parseJavbusMagnets(html: string) {
+export function parseJavbusMagnets(html: string): JavbusMagnet[] {
   const doc = parse(html);
   const items = doc.querySelectorAll("tr");
 
