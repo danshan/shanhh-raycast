@@ -26,8 +26,13 @@
     },
     {
       "name": "get-javbus-detail",
-      "title": "Get Jav detail",
+      "title": "Get Jav detail by url",
       "description": "Get JAV detail from javbus website with detail page url."
+    },
+    {
+      "name": "search-javbus-magnet-list",
+      "title": "Search JavBus magnet list",
+      "description": "Search JAV magnet list from javbus website with detail page url and magnet search page url."
     }
   ],
   "preferences": [

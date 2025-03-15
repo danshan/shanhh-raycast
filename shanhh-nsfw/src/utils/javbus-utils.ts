@@ -162,9 +162,9 @@ export function parseJavbusMagnets(html: string): JavbusMagnet[] {
     console.log("structuredText", item.querySelector("a")?.structuredText.trim() || "");
     const title = item.querySelector("a")?.text.trim() || "";
     const magnet = item.querySelector("a")?.getAttribute("href") || "";
-    const size = item.querySelectorAll("td")[1].text.trim() || "";
-    const date = item.querySelectorAll("td")[2].text.trim() || "";
-    const tags = item.querySelectorAll("a .btn").map((tag) => tag.text.trim());
+    const size = item.querySelectorAll("td")?.[1]?.text.trim() || "";
+    const date = item.querySelectorAll("td")?.[2]?.text.trim() || "";
+    const tags = item.querySelectorAll("a .btn")?.map((tag) => tag.text.trim()) || [];
     const result: JavbusMagnet = {
       title: title,
       magnet: magnet,

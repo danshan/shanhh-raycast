@@ -85,7 +85,7 @@ export interface JavbusDetailData {
    */
   images: string[];
   /**
-   * 磁力链接搜索 URL
+   * 磁力链接搜索页 URL
    */
   magnetSearchUrl: string;
 }
