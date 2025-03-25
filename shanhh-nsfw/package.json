@@ -18,6 +18,23 @@
       "mode": "view"
     }
   ],
+  "tools": [
+    {
+      "name": "search-javbus-list",
+      "title": "Search JavBus list",
+      "description": "Search JAV from javbus website."
+    },
+    {
+      "name": "get-javbus-detail",
+      "title": "Get Jav detail by url",
+      "description": "Get JAV detail from javbus website with detail page url."
+    },
+    {
+      "name": "search-javbus-magnet-list",
+      "title": "Search JavBus magnet list",
+      "description": "Search JAV magnet list from javbus website with detail page url and magnet search page url."
+    }
+  ],
   "preferences": [
     {
       "name": "btsowHost",
@@ -40,23 +57,23 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.74.1",
-    "@raycast/utils": "^1.15.0",
-    "crypto-js": "^4.1.1",
-    "got": "^14.2.1",
+    "@raycast/api": "^1.93.2",
+    "@raycast/utils": "^1.19.1",
+    "crypto-js": "^4.2.0",
+    "got": "^14.4.6",
     "node-html-parser": "^6.1.13",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@raycast/eslint-config": "^1.0.6",
+    "@raycast/eslint-config": "^1.0.11",
     "@types/crypto-js": "^4.2.2",
     "@types/got": "^9.6.12",
     "@types/node": "20.8.10",
     "@types/react": "18.2.27",
     "@types/uuid": "^9.0.8",
-    "eslint": "^8.51.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
   },
   "scripts": {
     "build": "ray build -e dist",

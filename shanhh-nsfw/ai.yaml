@@ -1,0 +1,67 @@
+ai:
+  instructions: |
+    你是一个 JAV 搜索工具, 你能够搜索 JAV 影片, 并返回搜索结果; 
+    你能够使用 search-javbus-list 工具, 通过影片的名称或者番号, 模糊搜索 JAV 影片的列表, 并返回搜索结果, 如果需要获取更详细的影片数据, 需要从列表中获取每个元素的详情页 url, 然后使用 get-javbus-detail 工具获取详情; 
+    你能够使用 get-javbus-detail 工具, 通过 JAV 影片的详情页的 url, 获取 JAV 影片的详细数据, 包含影片的详情页 url、封面图片、标题、番号、日期、标签, 演员, 磁力连接, 文件信息, 等; 
+    你能够使用 search-javbus-magnet-list 工具, 通过 JAV 影片的详情页的 url 以及 磁力链接的搜索页 url, 获取 JAV 影片的磁力链接列表; 
+  evals:
+    - input: "@shanhh-nsfw 搜索 jav SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+    - input: "@shanhh-nsfw 搜索 jav 的有码影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索 javbus 的 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "有码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索 jav 的无码影片 SSNI-001"
+      expected: 
+        - callTools: 
+          name: search-javbus-list
+          arguments: 
+            type: "无码"
+            searchText: "SSNI-001"
+
+    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的详情"
+      expected: 
+        - callTools: 
+          name: get-javbus-detail
+          arguments: 
+            url: "https://www.javbus.com/SSNI-001"  
+
+    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的演员信息"
+      expected: 
+        - callTools: 
+          name: get-javbus-detail
+          arguments: 
+            url: "https://www.javbus.com/SSNI-001"  
+
+    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的磁力链接"
+      expected: 
+        - callTools: 
+          name: search-javbus-magnet-list
+          arguments: 
+            detailUrl: "https://www.javbus.com/SSNI-001"
+            magnetSearchUrl: "https://www.javbus.com/search/SSNI-001"

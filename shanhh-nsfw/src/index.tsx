@@ -1,7 +1,7 @@
 import { Action, ActionPanel, List } from "@raycast/api";
 import { BtsowSearchList } from "./components/btsow-search-list";
 import { useState } from "react";
-import { JavbusSearchList } from "./components/javbus-search-list";
+import { JavbusSearchTextList } from "./components/javbus-search-list";
 
 export default function Command() {
   const [searchText, setSearchText] = useState<string>("");
@@ -26,7 +26,7 @@ export default function Command() {
         title="Javbus Search"
         actions={
           <ActionPanel>
-            <Action.Push title="Search Javbus" target={<JavbusSearchList searchText={searchText} />} />
+            <Action.Push title="Search Javbus" target={<JavbusSearchTextList searchText={searchText} />} />
           </ActionPanel>
         }
 

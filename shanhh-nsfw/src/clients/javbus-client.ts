@@ -8,22 +8,28 @@ const preps = getPreferenceValues<Preps>();
 const host = getHost() + "/search";
 const uncensoredHost = getHost() + "/uncensored/search";
 
-export function getHost() {
+export function getHost(): string {
   return preps.javbusHost;
 }
 
-export async function searchJavbus(page: number, type: string, searchText: string) {
+export async function searchJavbusText(page: number, type: string, searchText: string): Promise<string> {
   const targetHost = type === "有码" ? host : uncensoredHost;
-  const url = `${targetHost}/${searchText}/${page + 1}`;
-  console.log("search_url", url);
-  const response = await got.get(url, {
+  const url = `${targetHost}/${searchText}`;
+  return searchJavbusUrl(page, url);
+}
+
+export async function searchJavbusUrl(page: number, url: string): Promise<string> {
+  const javbusUrl = `${url}/${page + 1}`;
+  console.log("search_url", javbusUrl);
+  // header: -H 'cookie: age=verified; dv=1'
+  const response = await got.get(javbusUrl, {
     // skip age validation
     followRedirect: false
   });
   return response.body;
 }
 
-export async function searchJavbusDetail(url: string) {
+export async function searchJavbusDetail(url: string): Promise<string> {
   console.log("detail_url", url);
   const response = await got.get(url, {
     // skip age validation
@@ -32,7 +38,7 @@ export async function searchJavbusDetail(url: string) {
   return response.body;
 }
 
-export async function searchJarbusMagnets(url: string, referer: string) {
+export async function searchJarbusMagnets(url: string, referer: string): Promise<string> {
   console.log("detail_url", url, "referer", referer);
   const response = await got.get(url, {
     followRedirect: false,
