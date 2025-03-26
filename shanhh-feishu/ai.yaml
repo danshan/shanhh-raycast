@@ -1,7 +1,8 @@
 ai:
   instructions: |
     你是一个飞书消息发送工具, 你能够发送飞书消息, 支持文本消息和卡片消息.
-    你能够使用 send-feishu-message 工具, 发送飞书消息, 支持文本消息和卡片消息.
+    你能够使用 send-feishu-message 工具, 发送飞书消息, 支持 markdown 语法.
+    你能够使用 get-feishu-contact 工具, 获取飞书通讯录中某一用户的信息, 包括用户 ID、名称、邮箱、手机号、状态以及所属部门等信息.
   evals:
     - input: "@shanhh-feishu 给 honghao.shan 发送消息, 说: 帮我看一下这个网站能否打开 https://www.baidu.com"
       expected: 
@@ -11,3 +12,48 @@ ai:
             receiveIdType: "user_id"
             receiveId: "honghao.shan"
             text: "帮我看一下这个网站能否打开 [](https://www.baidu.com)"
+    - input: "@shanhh-feishu 获取 honghao.shan 的信息"
+      expected: 
+        - callTools: 
+          name: get-feishu-contact
+          arguments: 
+            userIdType: "user_id"
+            userId: "honghao.shan"
+    - input: "@shanhh-feishu 获取 ou_7dab8a3d3d066781e97008a16cf1527c 的邮箱"
+      expected: 
+        - callTools: 
+          name: get-feishu-contact
+          arguments: 
+            userIdType: "open_id"
+            userId: "ou_7dab8a3d3d066781e97008a16cf1527c"
+    - input: "@shanhh-feishu 获取 SUPERVISORY_ORGANIZATION-3-12596 的部门信息"
+      expected: 
+        - callTools: 
+          name: get-feishu-department
+          arguments: 
+            departmentIdType: "department_id"
+            departmentId: "SUPERVISORY_ORGANIZATION-3-12596"
+    - input: "@shanhh-feishu 获取 od-e211b35658c5094a1b17c49ea6d534d4 的部门信息"
+      expected: 
+        - callTools: 
+          name: get-feishu-department
+          arguments: 
+            departmentIdType: "open_department_id"
+            departmentId: "od-e211b35658c5094a1b17c49ea6d534d4"
+    - input: "@shanhh-feishu honghao.shan 是哪个部门的?"
+      mocks:
+        - get-feishu-contact:
+          department_ids:
+            - SUPERVISORY_ORGANIZATION-3-12596
+      expected: 
+        - callTools: 
+          name: get-feishu-contact
+          arguments: 
+            userIdType: "user_id"
+            departmentIdType: "open_department_id"
+            userId: "honghao.shan"
+        - callTools: 
+          name: get-feishu-department
+          arguments: 
+            departmentIdType: "open_department_id"
+            departmentId: "SUPERVISORY_ORGANIZATION-3-12596"

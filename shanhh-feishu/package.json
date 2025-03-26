@@ -52,6 +52,16 @@
       "name": "send-feishu-message",
       "title": "Send Feishu Message",
       "description": "Send feishu message"
+    },
+    {
+      "name": "get-feishu-contact",
+      "title": "Get Feishu Contact",
+      "description": "Get feishu contact"
+    },
+    {
+      "name": "get-feishu-department",
+      "title": "Get Feishu Department",
+      "description": "Get feishu department"
     }
   ],
   "dependencies": {

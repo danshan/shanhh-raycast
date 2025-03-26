@@ -48,3 +48,29 @@ export async function sendFeishuMessage(receiveIdType: "open_id" | "user_id", re
   });
   return res;
 }
+
+export async function getContact(userIdType: "open_id" | "user_id", userId: string, departmentIdType: "open_department_id" | "department_id") {
+  const res = await client.contact.v3.user.get({
+    params: {
+      user_id_type: userIdType,
+      department_id_type: departmentIdType,
+    },
+    path: {
+      user_id: userId,
+    },
+  });
+  return res;
+}
+
+export async function getDepartment(departmentIdType: "open_department_id" | "department_id", departmentId: string, userIdType: "open_id" | "user_id") {
+  const res = await client.contact.v3.department.get({
+    params: {
+      department_id_type: departmentIdType,
+      user_id_type: userIdType,
+    },
+    path: {
+      department_id: departmentId,
+    },
+  });
+  return res;
+}
