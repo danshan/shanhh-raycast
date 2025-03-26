@@ -1,18 +1,16 @@
-import { Tool } from "@raycast/api";
-import { getContact, getDepartment, sendFeishuMessage } from "../clients/feishu-client";
-import { CardMessage, TextMessage } from "../types/feishu.dt";
+import { getDepartment } from "../clients/feishu-client";
 
 type Input = {
   /**
    * 指定查询结果中的用户 ID 类型
-   * @remarks open_id 是飞书用户的 open_id, 仅用于飞书的内部. 
+   * @remarks open_id 是飞书用户的 open_id, 仅用于飞书的内部.
    * @remarkds user_id 是域账号, 用于飞书以外的系统.
    * @example ["open_id", "user_id"]
    */
   userIdType: "open_id" | "user_id";
   /**
    * 指定查询结果中的部门 ID 类型
-   * @remarks open_department_id 是飞书部门的 open_id, 仅用于飞书的内部. 
+   * @remarks open_department_id 是飞书部门的 open_id, 仅用于飞书的内部.
    * @remarkds department_id 是部门 id, 用于飞书以外的系统.
    * @example ["open_department_id", "department_id"]
    */
@@ -25,7 +23,7 @@ type Input = {
    * @example ["SUPERVISORY_ORGANIZATION-3-12596", "od-e211b35658c5094a1b17c49ea6d534d4"]
    */
   departmentId: string;
-}
+};
 
 /**
  * 调用该接口获取单个部门信息，包括部门名称、ID、父部门、负责人、状态以及成员个数等
@@ -47,5 +45,5 @@ export default async function getFeishuDepartmentTool(input: Input) {
     code: res.code,
     message: res.msg,
     data: res.data,
-  }
+  };
 }

@@ -12,7 +12,7 @@ export interface DocSearchResult {
 }
 
 /**
- * 用于创建飞书的文本消息, 仅支持以文本格式发送. 
+ * 用于创建飞书的文本消息, 仅支持以文本格式发送.
  * 适合发送简单的文本消息, 如: 你好, 世界!
  * 支持 markdown 语法.
  */
@@ -20,5 +20,5 @@ export interface TextMessage {
   msgType: "text";
   content: {
     text: string;
-  }
+  };
 }

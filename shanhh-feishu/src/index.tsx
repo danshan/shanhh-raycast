@@ -6,10 +6,7 @@ export default function Command() {
   const [searchText, setSearchText] = useState<string>("");
 
   return (
-    <List
-      searchText={searchText}
-      onSearchTextChange={setSearchText}
-    >
+    <List searchText={searchText} onSearchTextChange={setSearchText}>
       <List.Item
         key="search-feishu-docs"
         icon={{ source: Icon.Document, tintColor: Color.Blue }}

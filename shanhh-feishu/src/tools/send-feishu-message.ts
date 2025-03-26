@@ -1,11 +1,11 @@
 import { Tool } from "@raycast/api";
 import { sendFeishuMessage } from "../clients/feishu-client";
-import { CardMessage, TextMessage } from "../types/feishu.dt";
+import { TextMessage } from "../types/feishu.dt";
 
 type Input = {
   /**
    * 接收者类型, 支持 open_id 和 user_id.
-   * @remarks open_id 是飞书用户的 open_id, 用于飞书的内部系统. 
+   * @remarks open_id 是飞书用户的 open_id, 用于飞书的内部系统.
    * @remarkds user_id 是域账号, 用于飞书的外部系统.
    * @example ["open_id", "user_id"]
    */
@@ -23,18 +23,15 @@ type Input = {
    * 文本内容支持 markdown 语法.
    * @example ["你好, 世界!"]
    */
-  text?: string
-}
+  text?: string;
+};
 
 export const confirmation: Tool.Confirmation<Input> = async (input) => {
   return {
     message: `确认给 ${input.receiveId} 发送消息?`,
-    info: [
-      { name: "内容", value: input.text },
-    ]
+    info: [{ name: "内容", value: input.text }],
   };
 };
-
 
 /**
  * 发送飞书消息, 支持文本消息.
@@ -49,5 +46,5 @@ export default async function sendFeishuMessageTool(input: Input) {
     code: res.code,
     message: res.msg,
     data: res.data,
-  }
+  };
 }

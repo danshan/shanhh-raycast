@@ -1,18 +1,16 @@
-import { Tool } from "@raycast/api";
-import { getContact, sendFeishuMessage } from "../clients/feishu-client";
-import { CardMessage, TextMessage } from "../types/feishu.dt";
+import { getContact } from "../clients/feishu-client";
 
 type Input = {
   /**
    * userId 类型, 支持 open_id 和 user_id.
-   * @remarks open_id 是飞书用户的 open_id, 仅用于飞书的内部. 
+   * @remarks open_id 是飞书用户的 open_id, 仅用于飞书的内部.
    * @remarkds user_id 是域账号, 用于飞书以外的系统.
    * @example ["open_id", "user_id"]
    */
   userIdType: "open_id" | "user_id";
   /**
    * 指定查询结果中的部门 ID 类型
-   * @remarks open_department_id 是飞书部门的 open_id, 仅用于飞书的内部. 
+   * @remarks open_department_id 是飞书部门的 open_id, 仅用于飞书的内部.
    * @remarkds department_id 是部门 id, 用于飞书以外的系统.
    * @example ["open_department_id", "department_id"]
    */
@@ -25,7 +23,7 @@ type Input = {
    * @example ["honghao.shan", "xianglong.peng", "ou_7dab8a3d3d066781e97008a16cf1527c"]
    */
   userId: string;
-}
+};
 
 /**
  * 调用该接口获取通讯录中某一用户的信息，包括用户 ID、名称、邮箱、手机号、状态以及所属部门等信息。
@@ -50,5 +48,5 @@ export default async function getFeishuContactTool(input: Input) {
     code: res.code,
     message: res.msg,
     data: res.data,
-  }
+  };
 }
