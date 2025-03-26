@@ -35,14 +35,14 @@ export async function searchDocList(searchText: string) : Promise<DocSearchResul
   return res.data;
 }
 
-export async function sendFeishuMessage(receiveIdType: "open_id" | "user_id", receiveId: string, message: TextMessage | CardMessage) {
+export async function sendFeishuMessage(receiveIdType: "open_id" | "user_id", receiveId: string, message: TextMessage) {
   const res = await client.im.message.create({
     params: {
       receive_id_type: receiveIdType,
     },
     data: {
       receive_id: receiveId,
-      msg_type: message.msg_type,
+      msg_type: message.msgType,
       content: JSON.stringify(message.content),
     },
   });

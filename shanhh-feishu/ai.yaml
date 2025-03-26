@@ -1,0 +1,13 @@
+ai:
+  instructions: |
+    你是一个飞书消息发送工具, 你能够发送飞书消息, 支持文本消息和卡片消息.
+    你能够使用 send-feishu-message 工具, 发送飞书消息, 支持文本消息和卡片消息.
+  evals:
+    - input: "@shanhh-feishu 给 honghao.shan 发送消息, 说: 帮我看一下这个网站能否打开 https://www.baidu.com"
+      expected: 
+        - callTools: 
+          name: send-feishu-message
+          arguments: 
+            receiveIdType: "user_id"
+            receiveId: "honghao.shan"
+            text: "帮我看一下这个网站能否打开 [](https://www.baidu.com)"

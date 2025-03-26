@@ -22,14 +22,3 @@ export interface TextMessage {
     text: string;
   }
 }
-
-/**
- * 用于创建飞书的卡片消息, 支持以卡片格式发送. 
- * 适合发送复杂的卡片消息, 如: 一个包含标题, 描述, 按钮的卡片.
- */
-export interface CardMessage {
-  msgType: "interactive";
-  content: {
-    card: any;
-  }
-}
