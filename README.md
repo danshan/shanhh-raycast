@@ -4,18 +4,21 @@ Personal [Raycast](https://www.raycast.com/) extensions by [@danshan](https://gi
 
 ## Extensions
 
-### shanhh-toolbox
+### shanhh-totp
 
-General-purpose productivity toolbox.
+TOTP 2FA code generator.
 
-| Feature | Description |
-|---------|-------------|
-| **TOTP** | Generate 2FA codes from a local auth file. Supports search, copy OTP code, and copy OTP URI. |
-| **My IP** | Show local / public Chinese / global IP addresses with IP lookup details. |
+Generate 2FA codes from a local auth file. Supports search, copy OTP code, and copy OTP URI.
 
 **Preferences:**
 
 - `TOTP Auth File` - Path to a JSON file containing OTP configurations (`account`, `website`, `secret` fields).
+
+### shanhh-myip
+
+IP address tool.
+
+Show local / public Chinese / global IP addresses with IP lookup details.
 
 ### shanhh-feishu
 
@@ -54,7 +57,7 @@ Each extension is a standalone Raycast extension. To develop:
 
 ```bash
 # Install dependencies for an extension
-cd shanhh-toolbox && npm install
+cd shanhh-totp && npm install
 
 # Start development mode
 npm run dev

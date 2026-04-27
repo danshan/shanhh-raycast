@@ -28,7 +28,7 @@ export function BtsowSearchList(props: { searchText: string }) {
           ) :
           (searchResults || []).map((result: BtsowSearchResult) => (
               <List.Item
-                key={result.url}
+                key={result.hash}
                 title={result.title}
                 accessories={[
                   { text: result.size, icon: Icon.Document },

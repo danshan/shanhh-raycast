@@ -1,9 +1,19 @@
 import { usePromise } from "@raycast/utils";
 import { showToast, Toast } from "@raycast/api";
-import { searchBtsow, searchBtsowDetail } from "../clients/btsow-client";
-import { parseBtsowDetail, parseBtsowSearchResults } from "../utils/btso-utils";
-import { BtsowDetailData } from "../types/btsow-search.dt";
+import { getBtsowDetail, searchBtsow } from "../clients/btsow-client";
+import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search.dt";
 import { useEffect, useState } from "react";
+
+function formatSize(bytes: number): string {
+  if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + " GB";
+  if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + " MB";
+  if (bytes >= 1024) return (bytes / 1024).toFixed(2) + " KB";
+  return bytes + " B";
+}
+
+function formatDate(timestamp: number): string {
+  return new Date(timestamp * 1000).toISOString().slice(0, 10);
+}
 
 export function useBtsowSearch(searchText: string) {
   return usePromise(
@@ -11,36 +21,84 @@ export function useBtsowSearch(searchText: string) {
       try {
         console.log("searchText", searchText, "page", options.page);
         if (!searchText) {
-          return { data: [], hasMore: false };
+          return { data: [] as BtsowSearchResult[], hasMore: false };
         }
 
-        const html = await searchBtsow(options.page, searchText);
-        const list = parseBtsowSearchResults(html);
-        return { data: list, hasMore: list.length > 0 };
+        const items = await searchBtsow(options.page, searchText);
+        const list: BtsowSearchResult[] = items.map((item) => ({
+          hash: item.hash,
+          magnet: "magnet:?xt=urn:btih:" + item.hash,
+          title: item.name.replace(/<\/?em>/g, ""),
+          size: formatSize(item.size),
+          date: formatDate(item.lastUpdateTime),
+        }));
+        return { data: list, hasMore: list.length >= 50 };
       } catch (error) {
         console.error(error);
         await showToast(Toast.Style.Failure, "Search Btsow failed");
-        return { data: [], hasMore: false };
+        return { data: [] as BtsowSearchResult[], hasMore: false };
       }
-    }, [searchText]
+    },
+    [searchText],
   );
 }
 
-export function useBtsowDetail(url: string) {
+export function useBtsowDetail(hash: string) {
   const [detail, setDetail] = useState<BtsowDetailData>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const html = await searchBtsowDetail(url);
-        const detail = parseBtsowDetail(html);
-        setDetail(detail);
+        const data = await getBtsowDetail(hash);
+        setDetail({
+          title: data.name,
+          magnet: "magnet:?xt=urn:btih:" + data.hash,
+          hash: data.hash,
+          size: formatSize(data.size),
+          date: formatDate(data.lastUpdateTime),
+          fileCount: data.files.length,
+          keywords: extractKeywords(data.files.map((f) => f.filename)),
+          link: "https://btsow.pics/detail/" + data.hash,
+          files: data.files.map((f) => ({
+            name: f.filename,
+            size: formatSize(f.size),
+          })),
+        });
         setIsLoading(false);
       } catch (error) {
-        await showToast(Toast.Style.Failure, "Show Btsow detail failed");
+        console.error(error);
+        await showToast(Toast.Style.Failure, "Load Btsow detail failed");
       }
     })();
-  }, [url]);
+  }, [hash]);
+
   return { detail, isLoading };
+}
+
+const VIDEO_EXTS = new Set([".mkv", ".mp4", ".avi", ".wmv", ".flv", ".mov", ".webm", ".ts", ".m2ts"]);
+const AUDIO_EXTS = new Set([".mp3", ".flac", ".wav", ".aac", ".ogg", ".m4a", ".wma"]);
+const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"]);
+const DOC_EXTS = new Set([".pdf", ".epub", ".mobi", ".djvu", ".txt", ".doc", ".docx"]);
+const ARCHIVE_EXTS = new Set([".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"]);
+
+function extractKeywords(filenames: string[]): string[] {
+  const extCounts = new Map<string, number>();
+  for (const name of filenames) {
+    const dotIdx = name.lastIndexOf(".");
+    if (dotIdx >= 0) {
+      const ext = name.slice(dotIdx).toLowerCase();
+      extCounts.set(ext, (extCounts.get(ext) || 0) + 1);
+    }
+  }
+  const categories = new Set<string>();
+  for (const [ext, _count] of extCounts) {
+    if (VIDEO_EXTS.has(ext)) categories.add("Video");
+    else if (AUDIO_EXTS.has(ext)) categories.add("Audio");
+    else if (IMAGE_EXTS.has(ext)) categories.add("Image");
+    else if (DOC_EXTS.has(ext)) categories.add("Document");
+    else if (ARCHIVE_EXTS.has(ext)) categories.add("Archive");
+    else categories.add(ext);
+  }
+  return Array.from(categories);
 }
