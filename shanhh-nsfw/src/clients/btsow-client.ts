@@ -38,7 +38,7 @@ export interface BtsowMagnetFile {
 export async function searchBtsow(page: number, searchText: string) {
   console.log("searchBtsow", searchText, "page", page);
   const body = [{ search: searchText }, PAGE_SIZE, page + 1];
-  const response = await got.post(BTSOW_API, { json: body });
+  const response = await got.post(BTSOW_API, { json: body } as any);
   const result: BtsowApiResponse = JSON.parse(response.body);
   if (result.code !== 200) {
     throw new Error("Btsow API error: " + result.code);
@@ -48,7 +48,7 @@ export async function searchBtsow(page: number, searchText: string) {
 
 export async function getBtsowDetail(hash: string) {
   console.log("getBtsowDetail", hash);
-  const response = await got.post(BTSOW_MAGNET_API, { json: [hash] });
+  const response = await got.post(BTSOW_MAGNET_API, { json: [hash] } as any);
   const result: BtsowMagnetResponse = JSON.parse(response.body);
   if (result.code !== 200) {
     throw new Error("Btsow magnet API error: " + result.code);
