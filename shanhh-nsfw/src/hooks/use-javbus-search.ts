@@ -44,11 +44,11 @@ async function ensureProxy(): Promise<number> {
   });
 }
 
-function rewriteThumbnail(originalUrl: string, port: number): string {
+function rewriteUrl(originalUrl: string, port: number): string {
   const host = getHost();
   if (originalUrl.startsWith(host)) {
-    const path = originalUrl.slice(host.length);
-    return "http://127.0.0.1:" + port + path;
+    const p = originalUrl.slice(host.length);
+    return "http://127.0.0.1:" + port + p;
   }
   return originalUrl;
 }
@@ -57,8 +57,17 @@ async function rewriteThumbnails(results: JavbusSearchResult[]): Promise<JavbusS
   const port = await ensureProxy();
   return results.map((r) => ({
     ...r,
-    thumbnail: rewriteThumbnail(r.thumbnail, port),
+    thumbnail: rewriteUrl(r.thumbnail, port),
   }));
+}
+
+async function rewriteDetailImages(detail: JavbusDetailData): Promise<JavbusDetailData> {
+  const port = await ensureProxy();
+  return {
+    ...detail,
+    thumbnail: rewriteUrl(detail.thumbnail, port),
+    images: detail.images.map((img) => rewriteUrl(img, port)),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +132,8 @@ export function useJavbusDetail(url: string) {
       try {
         const html = await searchJavbusDetail(url);
         const detail = parseJavbusDetail(url, html);
-        setDetail(detail);
+        const rewritten = await rewriteDetailImages(detail);
+        setDetail(rewritten);
         setIsLoading(false);
       } catch (error) {
         await showToast(Toast.Style.Failure, "Show Javbus detail failed");
