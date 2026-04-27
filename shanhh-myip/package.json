@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "shanhh-toolbox",
-  "title": "ShanHH Toolbox",
-  "description": "ShanHH Toolbox",
+  "name": "shanhh-myip",
+  "title": "Shanhh My IP",
+  "description": "Show local and public IP addresses with lookup.",
   "icon": "command-icon.png",
   "author": "danshan",
   "owner": "shanhh",
@@ -13,33 +13,21 @@
   "commands": [
     {
       "name": "index",
-      "title": "ShanHH Toolbox",
-      "description": "Toolbox for ShanHH",
+      "title": "Shanhh My IP",
+      "description": "Show local and public IP addresses",
       "mode": "view"
     }
   ],
-  "preferences": [
-    {
-      "name": "authFile",
-      "description": "TOtp Auth File",
-      "type": "file",
-      "required": true,
-      "title": "TOTP Auth File"
-    }
-  ],
   "dependencies": {
-    "@raycast/api": "^1.74.1",
+    "@raycast/api": "^1.94.0",
     "got": "^14.2.1",
-    "ini": "^4.1.2",
-    "ip": "^2.0.1",
-    "otpauth": "^9.2.4"
+    "ip": "^2.0.1"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.6",
     "@types/got": "^9.6.12",
-    "@types/ini": "^4.1.0",
     "@types/node": "20.8.10",
-    "@types/react": "18.2.27",
+    "@types/react": "19.0.10",
     "@types/ip": "^1.1.3",
     "eslint": "^8.51.0",
     "prettier": "^3.0.3",
