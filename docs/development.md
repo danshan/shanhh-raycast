@@ -11,6 +11,14 @@
 
 ## 2. 安装
 
+安装并启动全部 Extension, 在仓库根目录执行:
+
+```bash
+./scripts/install-all.sh
+```
+
+脚本先依次执行每个 Extension 的 `npm ci`, 全部成功后并行运行 `npm run dev`. 进程会持续监听源码变化, 按 `Ctrl-C` 可同时停止.
+
 选择目标 Extension, 在其目录中安装依赖:
 
 ```bash

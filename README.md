@@ -24,6 +24,12 @@ npm ci
 npm run dev
 ```
 
+安装并启动全部 Extension, 在仓库根目录执行:
+
+```bash
+./scripts/install-all.sh
+```
+
 首次启动时, 在 Raycast Preferences 中填写对应 Extension 的配置. 不要把 TOTP Secret, 个人数据或敏感查询结果写入仓库, Issue, 日志或截图.
 
 ## 常用命令
@@ -44,6 +50,7 @@ npm run build
 .
 ├── AGENTS.md
 ├── docs/
+├── scripts/
 ├── shanhh-myip/
 ├── shanhh-nsfw/
 └── shanhh-totp/

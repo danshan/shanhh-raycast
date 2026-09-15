@@ -11,6 +11,8 @@
 │   ├── development.md
 │   ├── directory-structure.md
 │   └── technical-design.md
+├── scripts/
+│   └── install-all.sh
 ├── shanhh-myip/
 ├── shanhh-nsfw/
 └── shanhh-totp/
@@ -44,6 +46,7 @@
 | Path | Responsibility | Must not contain |
 | --- | --- | --- |
 | `<extension>/package.json` | Raycast manifest, npm scripts and dependencies | Real credentials |
+| `scripts/install-all.sh` | 安装依赖并启动全部本地 Extension | 发布命令, 真实凭据 |
 | `src/index.tsx` | Command 入口和一级导航 | 认证材料, 大段协议实现 |
 | `src/components/` | Raycast UI, 导航和用户 Action | Secret, Cookie, 认证头 |
 | `src/hooks/` | UI 异步状态和错误反馈 | 重复的 Host 和协议实现 |
