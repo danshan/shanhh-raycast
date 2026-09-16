@@ -9,3 +9,4 @@
 - Copy only translated text while keeping linguistic details in the result view.
 - Make the primary translation the footer copy action and expose contextual alternatives through Actions.
 - Reduce the visual emphasis of target language labels.
+- Use a transparent PNG icon with a versioned filename to avoid stale Raycast icon caches.
