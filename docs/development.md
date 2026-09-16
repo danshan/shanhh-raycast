@@ -6,6 +6,7 @@
 - Node.js 与 npm.
 - 目标数据源要求的网络访问.
 - TOTP Extension 所需的本地认证文件.
+- AI Translator 所需的 OpenAI-compatible API Base URL, API Key 和模型名称.
 
 项目没有统一的 Node.js 版本文件. 在补充版本约束前, 以各 Extension 当前 Raycast CLI 和 lockfile 可安装的版本为准, 不在文档中虚构版本.
 
@@ -37,20 +38,32 @@ npm ci
 | `shanhh-totp` | `authFile` | TOTP JSON file | Contains secrets |
 | `shanhh-nsfw` | `btsowHost` | Btsow browser host | No |
 | `shanhh-nsfw` | `javbusHost` | JavBus request host | No |
+| `shanhh-aitrans` | `apiBaseUrl` | OpenAI-compatible API base URL | No |
+| `shanhh-aitrans` | `apiKey` | Bearer API key | Yes |
+| `shanhh-aitrans` | `model` | Provider model name | No |
+| `shanhh-aitrans` | `targetLanguage1` | Primary default target language | No |
+| `shanhh-aitrans` | `targetLanguage2` | Additional default target language or `None` | No |
+| `shanhh-aitrans` | `targetLanguage3` | Additional default target language or `None` | No |
 
 不要创建包含真实值的 `.env`, fixture 或文档示例. Raycast Preferences 和用户选择的本地文件是当前配置来源.
 
-TOTP 文件是 JSON 数组, 每项包含 `account`, `website` 和 Base32 `secret`:
+TOTP 文件是 JSON 数组, 每项包含 `account`, `website`, Base32 `secret` 和可选的 `icon`:
 
 ```json
 [
   {
     "account": "user@example.com",
     "website": "Example",
-    "secret": "BASE32_PLACEHOLDER"
+    "secret": "BASE32_PLACEHOLDER",
+    "icon": "example"
   }
 ]
 ```
+
+`icon` 对应 `shanhh-totp/assets/<icon>.png`. 未指定, 名称非法或 asset 不存在时使用 `default.png`.
+存量站点图标只使用可唯一确认的品牌 Logo, 并统一尺寸, 留白和圆角容器. 无法确认的网站使用 `icon: "default"`, 不通过名称猜测域名或抓取 favicon.
+
+新增或补齐图标时使用项目 Skill `$generate-totp-icons`. 固定来源顺序为 Simple Icons, Dashboard Icons 和经过筛选的 Iconify 品牌集合. 生成只接受精确 slug 匹配, 产物保存在 Extension 内, 不增加运行时网络请求. Skill 只输出统计信息, 不输出认证文件路径, 网站清单或 Secret.
 
 ## 4. 开发
 
@@ -81,7 +94,7 @@ npm run build
 - `npm run build` 执行该 Extension manifest 中定义的 Raycast build 命令.
 - `npm run fix-lint` 会修改文件, 只在已检查 diff 后使用.
 
-3 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
+4 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
 
 ## 6. 发布
 
@@ -115,6 +128,7 @@ Agent, 本地脚本或 CI 不得在没有明确授权时自动执行发布.
 - 检查输入为空和异常路径是否结束 loading.
 - 检查外部页面结构是否变化, 尤其是 JavBus HTML Parser.
 - 检查日志前先确认没有输出 TOTP Secret, OTP, IP 或查询内容.
+- AI Translator 还需确认 Base URL 包含正确的 API version path, 模型名称存在, 且响应兼容 Chat Completions JSON 结构.
 
 ### AI Tool 不可见
 

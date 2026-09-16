@@ -4,6 +4,9 @@
 
 ```text
 .
+├── .agents/
+│   └── skills/
+│       └── generate-totp-icons/
 ├── AGENTS.md
 ├── docs/
 │   ├── README.md
@@ -14,6 +17,7 @@
 │   └── technical-design.md
 ├── scripts/
 │   └── install-all.sh
+├── shanhh-aitrans/
 ├── shanhh-myip/
 ├── shanhh-nsfw/
 └── shanhh-totp/
@@ -47,6 +51,7 @@
 
 | Path | Responsibility | Must not contain |
 | --- | --- | --- |
+| `.agents/skills/` | 项目专用的可重复 Agent 工作流和确定性辅助脚本 | 用户凭据, 私有配置副本 |
 | `<extension>/package.json` | Raycast manifest, npm scripts and dependencies | Real credentials |
 | `scripts/install-all.sh` | 安装依赖并启动全部本地 Extension | 发布命令, 真实凭据 |
 | `src/index.tsx` | Command 入口和一级导航 | 认证材料, 大段协议实现 |
@@ -57,6 +62,7 @@
 | `src/types/` | API DTO 和 Preferences 类型 | 运行时副作用 |
 | `src/utils/` | 纯转换, Parser 和局部 trust-boundary helper | 页面状态和导航 |
 | `test/` | Node.js 内置测试覆盖纯逻辑 | Raycast UI snapshot |
+| `assets/` | manifest 资源和内置图标 | 用户凭据或运行时生成文件 |
 
 ## 3. 命名规则
 

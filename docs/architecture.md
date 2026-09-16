@@ -4,11 +4,12 @@
 
 `shanhh-raycast` 是一个基于 Raycast API, React 和 TypeScript 的个人 Extension 集合. 每个一级目录都是可独立安装和发布的 Extension, 仓库根目录不承担运行时职责.
 
-当前仓库提供 3 类能力:
+当前仓库提供 4 类能力:
 
 - `shanhh-totp`: 从本地 JSON 文件生成和复制 TOTP.
 - `shanhh-myip`: 查询本地 IP, 国内出口 IP, 全球出口 IP 和 IP 详情.
 - `shanhh-nsfw`: 搜索 Btsow 和 JavBus 内容, 详情及磁力链接.
+- `shanhh-aitrans`: 通过用户配置的 OpenAI-compatible API 翻译单词, 短语和句子.
 
 ## 2. 框架入口
 
@@ -71,9 +72,10 @@ sequenceDiagram
     R-->>U: Render list, detail, or action
 ```
 
-- TOTP 在 Component 生命周期内读取并验证本地 JSON, 每秒更新倒计时, 每个 30 秒窗口重新生成 code.
+- TOTP 在 Component 生命周期内读取并验证本地 JSON, 每秒更新倒计时, 每个 30 秒窗口重新生成 code. 可选 `icon` 只解析到内置 PNG asset, 无效值回退 `default.png`.
 - My IP Client 并行获取两个公网出口地址, 校验响应并通过 `ipapi.co` 查询详情. Component 同时展示本地地址和独立请求状态.
 - NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用纯 Parser 转换返回数据. JavBus Client 管理同源 URL 校验和本地图片代理.
+- AI Translator 使用 Form 收集原文和 1 至 3 个目标语言. Client 发送一次 OpenAI Chat Completions 请求, 校验结构化结果, 再由 Detail 将首选译文作为默认复制 Action, 其他语境候选保留在 Actions 中.
 
 ## 5. AI Tool 数据流
 
@@ -96,15 +98,17 @@ JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情�
 | `shanhh-totp` | 用户选择的本地 JSON 文件 | `authFile`, 文件内含 TOTP Secret |
 | `shanhh-myip` | Local network, `api64.ipify.org`, `myip.ipip.net`, `ipapi.co` | No preferences |
 | `shanhh-nsfw` | Btsow API and user-configured JavBus host | `btsowHost`, `javbusHost` |
+| `shanhh-aitrans` | User-configured OpenAI-compatible API | `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3` |
 
 配置由 Raycast Preferences 提供. 本地认证文件只在运行时读取, 不进入仓库.
 
 ## 7. 运行时配置
 
-当前 manifest 共声明 3 个 Preference:
+当前 manifest 共声明 9 个 Preference:
 
 - `shanhh-totp`: `authFile`.
 - `shanhh-nsfw`: `btsowHost`, `javbusHost`.
 - `shanhh-myip`: No preferences.
+- `shanhh-aitrans`: `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3`.
 
 配置格式和安全要求见 [development.md](./development.md).

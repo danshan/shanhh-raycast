@@ -4,6 +4,7 @@ export interface OtpConfig {
   website: string;
   account: string;
   secret: string;
+  icon?: string;
 }
 
 export interface TotpEntry extends OtpConfig {
@@ -27,8 +28,17 @@ export function parseOtpConfigs(content: string): OtpConfig[] {
       website: entry.website.trim(),
       account: entry.account.trim(),
       secret: entry.secret.replaceAll(/\s/g, ""),
+      icon: typeof entry.icon === "string" ? entry.icon.trim() || undefined : undefined,
     };
   });
+}
+
+export function resolveTotpIcon(icon: string | undefined, availableFiles: ReadonlySet<string>): string {
+  const name = icon?.trim().toLowerCase();
+  if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) return "default.png";
+
+  const filename = `${name}.png`;
+  return availableFiles.has(filename) ? filename : "default.png";
 }
 
 export function createTotpEntries(configs: OtpConfig[]): TotpEntry[] {

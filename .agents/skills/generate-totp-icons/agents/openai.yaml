@@ -1,0 +1,4 @@
+interface:
+  display_name: "Generate TOTP Icons"
+  short_description: "Generate consistent local TOTP logo assets"
+  default_prompt: "Use $generate-totp-icons to generate and apply exact-match TOTP website icons, using default for uncertain matches."

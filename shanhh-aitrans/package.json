@@ -1,0 +1,295 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "shanhh-aitrans",
+  "type": "module",
+  "title": "Shanhh AI Translator",
+  "description": "Translate text with an OpenAI-compatible API.",
+  "icon": "extension-icon-transparent.png",
+  "author": "danshan",
+  "license": "MIT",
+  "categories": [
+    "Productivity"
+  ],
+  "commands": [
+    {
+      "name": "index",
+      "title": "AI Translate",
+      "description": "Translate text with an OpenAI-compatible API",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "apiBaseUrl",
+      "type": "textfield",
+      "required": true,
+      "title": "API Base URL",
+      "description": "OpenAI-compatible API base URL, including the API version path.",
+      "placeholder": "https://api.example.com/v1"
+    },
+    {
+      "name": "apiKey",
+      "type": "password",
+      "required": true,
+      "title": "API Key",
+      "description": "API key sent as a Bearer token."
+    },
+    {
+      "name": "model",
+      "type": "textfield",
+      "required": true,
+      "title": "Model",
+      "description": "Model name exposed by the configured API.",
+      "placeholder": "provider-model-name"
+    },
+    {
+      "name": "targetLanguage1",
+      "type": "dropdown",
+      "required": true,
+      "title": "Target Language 1",
+      "description": "Primary default target language.",
+      "default": "zh-CN",
+      "data": [
+        {
+          "title": "Simplified Chinese",
+          "value": "zh-CN"
+        },
+        {
+          "title": "Traditional Chinese",
+          "value": "zh-TW"
+        },
+        {
+          "title": "English",
+          "value": "en"
+        },
+        {
+          "title": "Japanese",
+          "value": "ja"
+        },
+        {
+          "title": "Korean",
+          "value": "ko"
+        },
+        {
+          "title": "French",
+          "value": "fr"
+        },
+        {
+          "title": "German",
+          "value": "de"
+        },
+        {
+          "title": "Spanish",
+          "value": "es"
+        },
+        {
+          "title": "Portuguese",
+          "value": "pt"
+        },
+        {
+          "title": "Italian",
+          "value": "it"
+        },
+        {
+          "title": "Russian",
+          "value": "ru"
+        },
+        {
+          "title": "Arabic",
+          "value": "ar"
+        },
+        {
+          "title": "Hindi",
+          "value": "hi"
+        },
+        {
+          "title": "Thai",
+          "value": "th"
+        },
+        {
+          "title": "Vietnamese",
+          "value": "vi"
+        },
+        {
+          "title": "Indonesian",
+          "value": "id"
+        }
+      ]
+    },
+    {
+      "name": "targetLanguage2",
+      "type": "dropdown",
+      "required": true,
+      "title": "Target Language 2",
+      "description": "Secondary default target language, or None.",
+      "default": "none",
+      "data": [
+        {
+          "title": "None",
+          "value": "none"
+        },
+        {
+          "title": "Simplified Chinese",
+          "value": "zh-CN"
+        },
+        {
+          "title": "Traditional Chinese",
+          "value": "zh-TW"
+        },
+        {
+          "title": "English",
+          "value": "en"
+        },
+        {
+          "title": "Japanese",
+          "value": "ja"
+        },
+        {
+          "title": "Korean",
+          "value": "ko"
+        },
+        {
+          "title": "French",
+          "value": "fr"
+        },
+        {
+          "title": "German",
+          "value": "de"
+        },
+        {
+          "title": "Spanish",
+          "value": "es"
+        },
+        {
+          "title": "Portuguese",
+          "value": "pt"
+        },
+        {
+          "title": "Italian",
+          "value": "it"
+        },
+        {
+          "title": "Russian",
+          "value": "ru"
+        },
+        {
+          "title": "Arabic",
+          "value": "ar"
+        },
+        {
+          "title": "Hindi",
+          "value": "hi"
+        },
+        {
+          "title": "Thai",
+          "value": "th"
+        },
+        {
+          "title": "Vietnamese",
+          "value": "vi"
+        },
+        {
+          "title": "Indonesian",
+          "value": "id"
+        }
+      ]
+    },
+    {
+      "name": "targetLanguage3",
+      "type": "dropdown",
+      "required": true,
+      "title": "Target Language 3",
+      "description": "Third default target language, or None.",
+      "default": "none",
+      "data": [
+        {
+          "title": "None",
+          "value": "none"
+        },
+        {
+          "title": "Simplified Chinese",
+          "value": "zh-CN"
+        },
+        {
+          "title": "Traditional Chinese",
+          "value": "zh-TW"
+        },
+        {
+          "title": "English",
+          "value": "en"
+        },
+        {
+          "title": "Japanese",
+          "value": "ja"
+        },
+        {
+          "title": "Korean",
+          "value": "ko"
+        },
+        {
+          "title": "French",
+          "value": "fr"
+        },
+        {
+          "title": "German",
+          "value": "de"
+        },
+        {
+          "title": "Spanish",
+          "value": "es"
+        },
+        {
+          "title": "Portuguese",
+          "value": "pt"
+        },
+        {
+          "title": "Italian",
+          "value": "it"
+        },
+        {
+          "title": "Russian",
+          "value": "ru"
+        },
+        {
+          "title": "Arabic",
+          "value": "ar"
+        },
+        {
+          "title": "Hindi",
+          "value": "hi"
+        },
+        {
+          "title": "Thai",
+          "value": "th"
+        },
+        {
+          "title": "Vietnamese",
+          "value": "vi"
+        },
+        {
+          "title": "Indonesian",
+          "value": "id"
+        }
+      ]
+    }
+  ],
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "test": "node --test test/*.test.ts",
+    "publish": "npx @raycast/api@latest publish"
+  },
+  "dependencies": {
+    "@raycast/api": "^1.94.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "20.8.10",
+    "@types/react": "19.0.10",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  }
+}

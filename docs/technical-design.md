@@ -8,7 +8,7 @@
 | Language | TypeScript | `^5.2.2` to `^5.8.2`, strict mode |
 | UI | React and `@raycast/api` | Raycast API `^1.94.0` |
 | Async UI | React hooks and `@raycast/utils` | `usePromise` in NSFW |
-| HTTP | `got` | My IP and NSFW |
+| HTTP | Native `fetch` and `got` | AI Translator uses `fetch`; My IP and NSFW use `got` |
 | Local data | Node.js `fs`, `ip`, `otpauth` | TOTP file and local IP |
 | Parsing | `node-html-parser` and local Parser | JavBus HTML |
 | Quality gates | Node.js test runner and Raycast CLI | `node --test`, `ray lint`, `ray build` |
@@ -37,7 +37,7 @@ TypeScript 类型不会验证本地 JSON, Remote JSON 或 HTML. 不可信输入�
 
 ### 2.5 配置由 Raycast 托管
 
-Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地数据入口. 不新增 `.env` 作为第二套配置来源. Secret 只在生成 TOTP 时读取, 不进入 UI, Clipboard 或日志, 除非用户明确触发复制 OTP 或 URI 的 Action.
+Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地数据入口. 不新增 `.env` 作为第二套配置来源. Secret 和 API Key 只在对应操作中读取, 不进入 UI, Clipboard 或日志, 除非用户明确触发复制 OTP 或 URI 的 Action.
 
 ## 3. 错误与状态策略
 
@@ -57,6 +57,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - My IP 的公网地址请求彼此独立, 可以并行加载.
 - NSFW 的搜索状态由 Hook 管理, 不增加全局响应缓存.
 - JavBus 图片本地代理只服务当前运行实例, 不作为持久缓存.
+- AI Translator 每次提交只发送一个包含全部目标语言的请求, 不缓存原文或结果.
 
 只有可复现故障证明需要时, 才按 Domain 增加 timeout, 取消处理或带 TTL 的缓存. 不引入通用任务队列.
 
@@ -68,6 +69,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 
 - `authFile` 中的 TOTP Secret 和生成的 OTP.
 - 用户 IP, 搜索内容, 详情 URL 和磁力链接.
+- AI Translator API Key, 原文和翻译结果.
 
 ### 5.2 日志规则
 
@@ -77,10 +79,11 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - Cookie, TOTP Secret 或 OTP.
 - IP 查询响应或用户查询内容.
 - 带查询词或磁力数据的完整 URL.
+- AI Translator API Key, 原文, 翻译结果或完整请求 URL.
 
 ### 5.3 Clipboard, Paste 和 Browser Action
 
-TOTP, IP 和磁力链接支持用户触发的 Clipboard, Paste 或 Browser Action. 这些操作是显式数据外发边界. 新增字段前必须确认内容适合离开 Extension.
+TOTP, IP, 磁力链接和翻译结果支持用户触发的 Clipboard, Paste 或 Browser Action. 这些操作是显式数据外发边界. 新增字段前必须确认内容适合离开 Extension.
 
 ## 6. 已完成的 Correctness Baseline
 
@@ -88,8 +91,9 @@ TOTP, IP 和磁力链接支持用户触发的 Clipboard, Paste 或 Browser Actio
 - My IP Remote Request 已收敛到最小 Client, Component 不再记录 IP 或查询参数.
 - JavBus Client 对公开 Tool URL 执行 configured HTTPS origin 校验.
 - JavBus HTML Parser 保持纯函数, 缺失字段不再生成包含 `undefined` 的伪 URL.
+- AI Translator Client 校验 API URL, 目标语言数量和模型结构化响应, 并跳过与原文相同的目标语言.
 - `ai.yaml` 使用 root-level `instructions` 和 `evals`, Eval 使用 `callsTool` 与 mocks 描述多 Tool 链路.
-- 3 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary 和 JavBus Parser.
+- 4 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary, JavBus Parser 和翻译响应边界.
 
 ## 7. 后续演进边界
 

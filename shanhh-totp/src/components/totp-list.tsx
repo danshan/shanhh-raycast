@@ -1,7 +1,7 @@
-import { Action, ActionPanel, getPreferenceValues, List } from "@raycast/api";
+import { Action, ActionPanel, environment, getPreferenceValues, List } from "@raycast/api";
 import { useEffect, useMemo, useState } from "react";
 import * as fs from "fs";
-import { createTotpEntries, getTimeRemaining, parseOtpConfigs } from "../utils/totp";
+import { createTotpEntries, getTimeRemaining, parseOtpConfigs, resolveTotpIcon } from "../utils/totp";
 
 interface Preferences {
   authFile: string;
@@ -12,6 +12,7 @@ export function TotpList() {
   const [searchText, setSearchText] = useState("");
   const [now, setNow] = useState(Date.now());
   const window = Math.trunc(now / 30_000);
+  const availableIcons = useMemo(() => new Set(fs.readdirSync(environment.assetsPath)), []);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1_000);
@@ -46,7 +47,7 @@ export function TotpList() {
       {filteredList.map((config) => (
         <List.Item
           key={config.id}
-          icon="list-icon.png"
+          icon={resolveTotpIcon(config.icon, availableIcons)}
           title={config.website || ""}
           subtitle={config.account || ""}
           accessories={[{ tag: config.code || "" }]}
