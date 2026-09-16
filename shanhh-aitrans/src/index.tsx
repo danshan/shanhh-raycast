@@ -65,7 +65,7 @@ function TranslationForm({ preferences, defaultTargetCodes }: { preferences: Ext
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Translate" icon={Icon.Globe} onSubmit={handleSubmit} />
+          <Action.SubmitForm title="Translate" icon={Icon.Globe} shortcut={{ modifiers: [], key: "enter" }} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
