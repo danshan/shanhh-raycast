@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useBtsowSearch } from "../hooks/use-btsow-search";
 import { Action, ActionPanel, Icon, List } from "@raycast/api";
-import { BtsowSearchResult } from "../types/btsow-search.dt";
+import { BtsowSearchResult } from "../types/btsow-search";
 import { BtsowSearchDetail } from "./btsow-search-detail";
 
 export function BtsowSearchList(props: { searchText: string }) {
@@ -9,43 +9,28 @@ export function BtsowSearchList(props: { searchText: string }) {
   const { isLoading, data: searchResults, pagination } = useBtsowSearch(searchText);
 
   return (
-    <List
-      isLoading={isLoading}
-      filtering={false}
-      searchText={searchText}
-      onSearchTextChange={setSearchText}
-      navigationTitle="Search Btsow"
-      searchBarPlaceholder="Keywords"
-      pagination={pagination}
-      throttle
-    >
-      {
-        (searchResults || []).length == 0 ? (
-            <List.EmptyView
-              title="No results"
-              description="Try another search term"
-            />
-          ) :
-          (searchResults || []).map((result: BtsowSearchResult) => (
-              <List.Item
-                key={result.hash}
-                title={result.title}
-                accessories={[
-                  { text: result.size, icon: Icon.Document },
-                  { text: result.date, icon: Icon.Calendar }
-                ]}
-                actions={
-                  <ActionPanel>
-                    <Action.Push title="Show Detail" target={
-                      <BtsowSearchDetail searchResult={result} />
-                    } />
-                    <Action.CopyToClipboard title="Copy Magnet" content={result?.magnet} />
-                    <Action.CopyToClipboard title="Copy Title" content={result?.title} />
-                  </ActionPanel>
-                } />
-            )
-          )
-      }
+    <List isLoading={isLoading} filtering={false} searchText={searchText} onSearchTextChange={setSearchText} navigationTitle="Search Btsow" searchBarPlaceholder="Keywords" pagination={pagination} throttle>
+      {(searchResults || []).length == 0 ? (
+        <List.EmptyView title="No results" description="Try another search term" />
+      ) : (
+        (searchResults || []).map((result: BtsowSearchResult) => (
+          <List.Item
+            key={result.hash}
+            title={result.title}
+            accessories={[
+              { text: result.size, icon: Icon.Document },
+              { text: result.date, icon: Icon.Calendar },
+            ]}
+            actions={
+              <ActionPanel>
+                <Action.Push title="Show Detail" target={<BtsowSearchDetail searchResult={result} />} />
+                <Action.CopyToClipboard title="Copy Magnet" content={result?.magnet} />
+                <Action.CopyToClipboard title="Copy Title" content={result?.title} />
+              </ActionPanel>
+            }
+          />
+        ))
+      )}
     </List>
   );
 }

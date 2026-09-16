@@ -1,4 +1,6 @@
+import { getPreferenceValues } from "@raycast/api";
 import got from "got";
+import type { Preferences } from "../types";
 
 const BTSOW_API = "https://btsow.pics/bts/data/api/search";
 const BTSOW_MAGNET_API = "https://btsow.pics/bts/data/api/magnet";
@@ -36,10 +38,8 @@ export interface BtsowMagnetFile {
 }
 
 export async function searchBtsow(page: number, searchText: string) {
-  console.log("searchBtsow", searchText, "page", page);
   const body = [{ search: searchText }, PAGE_SIZE, page + 1];
-  const response = await got.post(BTSOW_API, { json: body } as any);
-  const result: BtsowApiResponse = JSON.parse(response.body);
+  const result = await got.post(BTSOW_API, { json: body }).json<BtsowApiResponse>();
   if (result.code !== 200) {
     throw new Error("Btsow API error: " + result.code);
   }
@@ -47,11 +47,20 @@ export async function searchBtsow(page: number, searchText: string) {
 }
 
 export async function getBtsowDetail(hash: string) {
-  console.log("getBtsowDetail", hash);
-  const response = await got.post(BTSOW_MAGNET_API, { json: [hash] } as any);
-  const result: BtsowMagnetResponse = JSON.parse(response.body);
+  const result = await got.post(BTSOW_MAGNET_API, { json: [hash] }).json<BtsowMagnetResponse>();
   if (result.code !== 200) {
     throw new Error("Btsow magnet API error: " + result.code);
   }
   return result.data;
+}
+
+export function getBtsowDetailUrl(hash: string): string {
+  const url = new URL(getPreferenceValues<Preferences>().btsowHost);
+  if (url.protocol !== "https:") {
+    throw new Error("Btsow host must use HTTPS.");
+  }
+  url.pathname = `/detail/${encodeURIComponent(hash)}`;
+  url.search = "";
+  url.hash = "";
+  return url.toString();
 }

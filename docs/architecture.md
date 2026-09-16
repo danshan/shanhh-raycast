@@ -50,7 +50,7 @@ flowchart LR
 6. `types/` 描述 Preferences 与外部数据契约.
 7. `tools/` 是 AI 输入到 Client 调用的薄适配层.
 
-简单 Extension 不需要凑齐所有层. `shanhh-totp` 直接读取本地文件, `shanhh-myip` 当前仍在 Component 中执行请求. 后者是已记录的演进项, 不应成为新增网络功能的模板.
+简单 Extension 不需要凑齐所有层. `shanhh-totp` 通过纯 Utility 解析本地文件和生成 code. `shanhh-myip` 由最小 Client 管理 3 个 Remote Request, Component 只维护页面状态.
 
 ## 4. UI 数据流
 
@@ -71,13 +71,15 @@ sequenceDiagram
     R-->>U: Render list, detail, or action
 ```
 
-- TOTP 在模块加载时读取本地 JSON 文件, 构造 TOTP 条目, UI 负责过滤与 Clipboard 或 Paste Action.
-- My IP 并行获取本地地址和两个公网出口地址, 详情页通过 `ipapi.co` 查询补充信息.
-- NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用 Parser 转换返回数据. JavBus 缩略图可经本地代理重写.
+- TOTP 在 Component 生命周期内读取并验证本地 JSON, 每秒更新倒计时, 每个 30 秒窗口重新生成 code.
+- My IP Client 并行获取两个公网出口地址, 校验响应并通过 `ipapi.co` 查询详情. Component 同时展示本地地址和独立请求状态.
+- NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用纯 Parser 转换返回数据. JavBus Client 管理同源 URL 校验和本地图片代理.
 
 ## 5. AI Tool 数据流
 
 AI Tool 不经过 UI Component 和 Hook. `src/tools/<tool-name>.ts` 定义输入类型和 Tool 实现, 完成少量输入规范化后直接调用既有 Client.
+
+JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情时按 list -> detail 调用, 查询 magnet 时按 list -> detail -> magnet 调用, URL 必须来自前序 Tool 返回值.
 
 `shanhh-nsfw` manifest 当前公开 3 个 Tool:
 

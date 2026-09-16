@@ -4,6 +4,7 @@ export interface BtsowSearchResult {
   title: string;
   size: string;
   date: string;
+  link: string;
 }
 
 export interface BtsowDetailData {

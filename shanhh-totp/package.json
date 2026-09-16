@@ -1,6 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "shanhh-totp",
+  "type": "module",
   "title": "Shanhh TOTP",
   "description": "TOTP 2FA code generator.",
   "icon": "extension-icon.png",
@@ -44,6 +45,7 @@
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
+    "test": "node --test test/*.test.ts",
     "publish": "npx @raycast/api@latest publish"
   }
 }

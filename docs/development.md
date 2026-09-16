@@ -71,15 +71,17 @@ npm run dev
 在每个受影响的 Extension 目录中执行:
 
 ```bash
+npm test
 npm run lint
 npm run build
 ```
 
+- `npm test` 使用 Node.js 内置 test runner, 覆盖该 Extension 已提取的纯逻辑.
 - `npm run lint` 执行 `ray lint`.
 - `npm run build` 执行该 Extension manifest 中定义的 Raycast build 命令.
 - `npm run fix-lint` 会修改文件, 只在已检查 diff 后使用.
 
-当前没有 `test` script. 非平凡纯逻辑改动应优先补充一个最小可运行测试, 再把稳定命令加入目标 `package.json`.
+3 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
 
 ## 6. 发布
 

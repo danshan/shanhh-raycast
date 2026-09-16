@@ -11,7 +11,7 @@
 | HTTP | `got` | My IP and NSFW |
 | Local data | Node.js `fs`, `ip`, `otpauth` | TOTP file and local IP |
 | Parsing | `node-html-parser` and local Parser | JavBus HTML |
-| Quality gates | Raycast CLI lint and build | `ray lint`, `ray build` |
+| Quality gates | Node.js test runner and Raycast CLI | `node --test`, `ray lint`, `ray build` |
 
 这套方案与当前规模匹配. 不需要新增根级 workspace, 路由框架, 状态管理库, IoC 容器或统一 Repository 层.
 
@@ -82,37 +82,18 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 
 TOTP, IP 和磁力链接支持用户触发的 Clipboard, Paste 或 Browser Action. 这些操作是显式数据外发边界. 新增字段前必须确认内容适合离开 Extension.
 
-## 6. 已确认的问题与处理顺序
+## 6. 已完成的 Correctness Baseline
 
-以下内容是当前源码状态, 不是已完成的改动:
+- TOTP 配置在本地文件边界验证, code 按 30 秒窗口刷新, 文件和 Secret 错误进入明确 UI 状态.
+- My IP Remote Request 已收敛到最小 Client, Component 不再记录 IP 或查询参数.
+- JavBus Client 对公开 Tool URL 执行 configured HTTPS origin 校验.
+- JavBus HTML Parser 保持纯函数, 缺失字段不再生成包含 `undefined` 的伪 URL.
+- `ai.yaml` 使用 root-level `instructions` 和 `evals`, Eval 使用 `callsTool` 与 mocks 描述多 Tool 链路.
+- 3 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary 和 JavBus Parser.
 
-| Priority | Finding | Impact | Recommended minimum change |
-| --- | --- | --- | --- |
-| P1 | TOTP 文件在模块加载时同步解析, 生成结果不会随 30 秒窗口主动刷新 | 文件错误会阻止 Command 启动, OTP 可能过期 | 将读取和生成放入可刷新状态, 增加最小输入检查 |
-| P1 | My IP 的 Remote Request 和日志位于 Component | UI, 协议和个人数据边界耦合 | 提取最小 Client, 删除 IP 和参数日志 |
-| P1 | `ai.yaml` 使用额外的 `ai` 根节点 | 需要确认当前 Raycast 是否能加载 Instructions 和 Evals | 在开发模式确认后, 再按当前官方格式对齐 |
-| P2 | JavBus 依赖外部 HTML 结构且没有 Parser 回归检查 | 页面变化会导致静默缺字段或解析失败 | 使用脱敏的最小 HTML fixture 覆盖 3 个 Parser |
-| P2 | 当前 3 个 Extension 都没有自动化测试和 `test` script | TOTP 和 Parser 回归只能人工发现 | 优先使用 Node.js 内置测试覆盖纯逻辑 |
+## 7. 后续演进边界
 
-修复顺序建议为 Runtime correctness, AI manifest consistency, Tests. 不把这些修复与目录重构合并.
-
-## 7. 演进方案
-
-### Phase 1: Correctness baseline
-
-- 让 TOTP 在有效时间窗口刷新, 并对本地文件给出明确错误.
-- 将 My IP Remote Request 收敛到最小 Client, 删除个人数据日志.
-- 确认 `ai.yaml` 被 Raycast 正确加载.
-
-### Phase 2: Small executable checks
-
-- 使用 Node.js 内置测试能力覆盖 TOTP 配置和 HTML Parser.
-- 为 AI Tool 输入规范化保留最小用例.
-- 不为 UI 展示细节创建大规模 snapshot suite.
-
-### Phase 3: Boundary hardening
-
-仅在实际故障证明有需要时增加 Remote Request timeout, response guard 和取消处理. 修改保持在对应 Client, Parser 或本地文件读取函数, 不创建通用网络框架.
+仅在实际故障证明有需要时增加 Remote Request timeout, retry 或持久缓存. 修改保持在对应 Client, Parser 或本地文件读取函数, 不创建通用网络框架. UI 行为继续使用 `npm run dev` 人工验证, 不增加大规模 snapshot suite.
 
 ## 8. Raycast 契约参考
 

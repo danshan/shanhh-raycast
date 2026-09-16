@@ -7,11 +7,7 @@ export default function Command() {
   const [searchText, setSearchText] = useState<string>("");
 
   return (
-    <List
-      searchText={searchText}
-      onSearchTextChange={setSearchText}
-      searchBarPlaceholder="Baike keywords"
-    >
+    <List searchText={searchText} onSearchTextChange={setSearchText} searchBarPlaceholder="Baike keywords">
       <List.Item
         icon="list-icon.png"
         title="Btsow Search"
@@ -29,7 +25,6 @@ export default function Command() {
             <Action.Push title="Search Javbus" target={<JavbusSearchTextList searchText={searchText} />} />
           </ActionPanel>
         }
-
       />
     </List>
   );

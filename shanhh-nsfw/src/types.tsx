@@ -1,4 +1,4 @@
-export interface Preps {
+export interface Preferences {
   btsowHost: string;
   javbusHost: string;
 }

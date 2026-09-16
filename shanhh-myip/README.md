@@ -20,6 +20,7 @@ npm run dev
 验证命令:
 
 ```bash
+npm test
 npm run lint
 npm run build
 ```

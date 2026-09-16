@@ -16,7 +16,7 @@ Shanhh NSFW 提供 Btsow 和 JavBus 搜索, 详情及磁力链接能力, 并暴�
 | `btsowHost` | Btsow browser host |
 | `javbusHost` | JavBus request host |
 
-Host 必须包含协议和有效域名. 使用者负责确认目标站点的访问权限和内容合规性.
+两个 Host 都必须使用 HTTPS 和有效域名. JavBus 详情与磁力请求只允许访问 `javbusHost` 的同源 URL. 使用者负责确认目标站点的访问权限和内容合规性.
 
 ## Development
 
@@ -28,6 +28,7 @@ npm run dev
 验证命令:
 
 ```bash
+npm test
 npm run lint
 npm run build
 ```

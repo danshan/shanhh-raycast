@@ -8,6 +8,7 @@
 ├── docs/
 │   ├── README.md
 │   ├── architecture.md
+│   ├── code-review-2026-09-16.md
 │   ├── development.md
 │   ├── directory-structure.md
 │   └── technical-design.md
@@ -28,6 +29,7 @@
 ├── package.json
 ├── package-lock.json
 ├── README.md
+├── test/
 ├── tsconfig.json
 └── src/
     ├── clients/
@@ -53,7 +55,8 @@
 | `src/clients/` | 单个远程系统的协议边界 | Raycast UI 组件 |
 | `src/tools/` | AI Tool 输入和 Client 适配 | 重复 Client 逻辑, UI 状态 |
 | `src/types/` | API DTO 和 Preferences 类型 | 运行时副作用 |
-| `src/utils/` | 纯转换或 Parser | 页面状态和导航 |
+| `src/utils/` | 纯转换, Parser 和局部 trust-boundary helper | 页面状态和导航 |
+| `test/` | Node.js 内置测试覆盖纯逻辑 | Raycast UI snapshot |
 
 ## 3. 命名规则
 
@@ -63,9 +66,8 @@
 - Hook: `use-<domain>.ts`.
 - Component: `<domain>-<purpose>.tsx`.
 - AI Tool: 与 manifest 的 `<tool-name>.ts` 完全一致.
-- 类型文件当前混用 `<domain>.dt.tsx` 和 `types.tsx`. 新文件先保持所在 Extension 的一致性, 只有在单独的类型整理任务中再统一.
-
-现有 `javbus-magent-list.tsx` 名称不作为新文件模板, 也不在无关任务中批量改名.
+- 类型文件使用 `.ts`, 只有包含 JSX 的文件使用 `.tsx`.
+- Magnet 相关文件和标识符使用 `magnet`, 不使用 `magent` 或 `Jarbus`.
 
 ## 4. 新功能落位
 

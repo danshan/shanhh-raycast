@@ -1,7 +1,7 @@
 import { usePromise } from "@raycast/utils";
 import { showToast, Toast } from "@raycast/api";
-import { getBtsowDetail, searchBtsow } from "../clients/btsow-client";
-import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search.dt";
+import { getBtsowDetail, getBtsowDetailUrl, searchBtsow } from "../clients/btsow-client";
+import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search";
 import { useEffect, useState } from "react";
 
 function formatSize(bytes: number): string {
@@ -19,7 +19,6 @@ export function useBtsowSearch(searchText: string) {
   return usePromise(
     (searchText: string) => async (options: { page: number }) => {
       try {
-        console.log("searchText", searchText, "page", options.page);
         if (!searchText) {
           return { data: [] as BtsowSearchResult[], hasMore: false };
         }
@@ -31,10 +30,10 @@ export function useBtsowSearch(searchText: string) {
           title: item.name.replace(/<\/?em>/g, ""),
           size: formatSize(item.size),
           date: formatDate(item.lastUpdateTime),
+          link: getBtsowDetailUrl(item.hash),
         }));
         return { data: list, hasMore: list.length >= 50 };
-      } catch (error) {
-        console.error(error);
+      } catch {
         await showToast(Toast.Style.Failure, "Search Btsow failed");
         return { data: [] as BtsowSearchResult[], hasMore: false };
       }
@@ -46,12 +45,17 @@ export function useBtsowSearch(searchText: string) {
 export function useBtsowDetail(hash: string) {
   const [detail, setDetail] = useState<BtsowDetailData>();
   const [isLoading, setIsLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    let active = true;
+    setIsLoading(true);
+    setFailed(false);
+    setDetail(undefined);
+    void (async () => {
       try {
         const data = await getBtsowDetail(hash);
-        setDetail({
+        const nextDetail = {
           title: data.name,
           magnet: "magnet:?xt=urn:btih:" + data.hash,
           hash: data.hash,
@@ -59,21 +63,29 @@ export function useBtsowDetail(hash: string) {
           date: formatDate(data.lastUpdateTime),
           fileCount: data.files.length,
           keywords: extractKeywords(data.files.map((f) => f.filename)),
-          link: "https://btsow.pics/detail/" + data.hash,
+          link: getBtsowDetailUrl(data.hash),
           files: data.files.map((f) => ({
             name: f.filename,
             size: formatSize(f.size),
           })),
-        });
-        setIsLoading(false);
-      } catch (error) {
-        console.error(error);
-        await showToast(Toast.Style.Failure, "Load Btsow detail failed");
+        };
+        if (active) setDetail(nextDetail);
+      } catch {
+        if (active) {
+          setFailed(true);
+          await showToast(Toast.Style.Failure, "Load Btsow detail failed");
+        }
+      } finally {
+        if (active) setIsLoading(false);
       }
     })();
+
+    return () => {
+      active = false;
+    };
   }, [hash]);
 
-  return { detail, isLoading };
+  return { detail, failed, isLoading };
 }
 
 const VIDEO_EXTS = new Set([".mkv", ".mp4", ".avi", ".wmv", ".flv", ".mov", ".webm", ".ts", ".m2ts"]);
@@ -83,16 +95,16 @@ const DOC_EXTS = new Set([".pdf", ".epub", ".mobi", ".djvu", ".txt", ".doc", ".d
 const ARCHIVE_EXTS = new Set([".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"]);
 
 function extractKeywords(filenames: string[]): string[] {
-  const extCounts = new Map<string, number>();
+  const extensions = new Set<string>();
   for (const name of filenames) {
     const dotIdx = name.lastIndexOf(".");
     if (dotIdx >= 0) {
       const ext = name.slice(dotIdx).toLowerCase();
-      extCounts.set(ext, (extCounts.get(ext) || 0) + 1);
+      extensions.add(ext);
     }
   }
   const categories = new Set<string>();
-  for (const [ext, _count] of extCounts) {
+  for (const ext of extensions) {
     if (VIDEO_EXTS.has(ext)) categories.add("Video");
     else if (AUDIO_EXTS.has(ext)) categories.add("Audio");
     else if (IMAGE_EXTS.has(ext)) categories.add("Image");

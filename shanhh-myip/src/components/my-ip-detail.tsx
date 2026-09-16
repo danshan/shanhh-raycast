@@ -1,9 +1,8 @@
 import { Action, ActionPanel, List, useNavigation } from "@raycast/api";
-import got from "got";
 import { useEffect, useState } from "react";
-import { LoadingStatus } from "./my-ip-list";
+import { IpLookupData, lookupIp } from "../clients/ip-client";
 
-const showItems: { [key: string]: string } = {
+const labels: Record<string, string> = {
   ip: "IP Address",
   city: "City",
   region: "Region",
@@ -19,57 +18,65 @@ const showItems: { [key: string]: string } = {
   currency: "Currency",
   languages: "Languages",
   asn: "ASN",
-  org: "Org"
+  org: "Org",
 };
 
-export default function LookUp(param: { ip: string }) {
-  const [status, setStatus] = useState<LoadingStatus>("loading");
-  const [data, setData] = useState<{ [key: string]: string | number }>({});
+export default function IpLookup({ ip }: { ip: string }) {
+  const [data, setData] = useState<IpLookupData>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const { pop } = useNavigation();
 
   useEffect(() => {
-      async function getIp() {
-        try {
-          console.log("param1", param);
-          const url = `https://ipapi.co/${param.ip}/json`;
-          const data = JSON.parse((await got.get(url)).body);
-          setData(data);
-          setStatus("success");
-        } catch (error) {
-          setStatus("failure");
-        }
-      }
+    let active = true;
+    setIsLoading(true);
+    setFailed(false);
 
-      console.log("param", param);
-      getIp();
-    }, []
-  );
+    void lookupIp(ip)
+      .then((result) => {
+        if (active) setData(result);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [ip]);
 
   return (
-    <List isLoading={status === "loading"} navigationTitle="IP Lookup" actions={
-      <ActionPanel>
-        <Action.OpenInBrowser url={"https://ipapi.co"} onOpen={() => {
-          pop();
-        }}
-        />
-      </ActionPanel>
-    }
+    <List
+      isLoading={isLoading}
+      navigationTitle="IP Lookup"
+      actions={
+        <ActionPanel>
+          <Action.OpenInBrowser url="https://ipapi.co" onOpen={pop} />
+        </ActionPanel>
+      }
     >
-      {Object.keys(data).map(
-        (key) =>
-          Object.prototype.hasOwnProperty.call(showItems, key) && (data[key]) && (
-            <List.Item key={key} title={showItems[key]} accessories={[{ text: (data[key] || "").toString() }]} actions={
-              <ActionPanel>
-                <Action.CopyToClipboard title={`Copy to ${showItems[key]}`} content={data[key].toString()} />
-                <Action.OpenInBrowser url={`https://ipapi.co/?q=${param.ip}`} onOpen={() => {
-                  pop();
-                }}
-                />
-              </ActionPanel>
-            }
+      {failed && <List.EmptyView title="IP Lookup Failed" description="The lookup service is unavailable." />}
+      {!failed &&
+        Object.entries(labels).map(([key, label]) => {
+          const value = data[key];
+          if (value === null || value === undefined) return null;
+          return (
+            <List.Item
+              key={key}
+              title={label}
+              accessories={[{ text: String(value) }]}
+              actions={
+                <ActionPanel>
+                  <Action.CopyToClipboard title={`Copy ${label}`} content={String(value)} />
+                  <Action.OpenInBrowser url={`https://ipapi.co/?q=${encodeURIComponent(ip)}`} onOpen={pop} />
+                </ActionPanel>
+              }
             />
-          )
-      )}
+          );
+        })}
     </List>
   );
 }

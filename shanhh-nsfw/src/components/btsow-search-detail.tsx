@@ -1,16 +1,43 @@
-import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search.dt";
+import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search";
 import { Action, ActionPanel, Color, Detail } from "@raycast/api";
 import React from "react";
 import { useBtsowDetail } from "../hooks/use-btsow-search";
 
 const FILE_EMOJI: Record<string, string> = {
-  ".mkv": "🎬", ".mp4": "🎬", ".avi": "🎬", ".wmv": "🎬", ".flv": "🎬",
-  ".mov": "🎬", ".webm": "🎬", ".ts": "🎬", ".m2ts": "🎬",
-  ".mp3": "🎵", ".flac": "🎵", ".wav": "🎵", ".aac": "🎵", ".ogg": "🎵", ".m4a": "🎵",
-  ".jpg": "🖼", ".jpeg": "🖼", ".png": "🖼", ".gif": "🖼", ".bmp": "🖼", ".webp": "🖼", ".svg": "🖼",
-  ".pdf": "📕", ".epub": "📕", ".mobi": "📕",
-  ".txt": "📝", ".srt": "📝", ".ass": "📝", ".nfo": "📝",
-  ".zip": "📦", ".rar": "📦", ".7z": "📦", ".tar": "📦", ".gz": "📦",
+  ".mkv": "🎬",
+  ".mp4": "🎬",
+  ".avi": "🎬",
+  ".wmv": "🎬",
+  ".flv": "🎬",
+  ".mov": "🎬",
+  ".webm": "🎬",
+  ".ts": "🎬",
+  ".m2ts": "🎬",
+  ".mp3": "🎵",
+  ".flac": "🎵",
+  ".wav": "🎵",
+  ".aac": "🎵",
+  ".ogg": "🎵",
+  ".m4a": "🎵",
+  ".jpg": "🖼",
+  ".jpeg": "🖼",
+  ".png": "🖼",
+  ".gif": "🖼",
+  ".bmp": "🖼",
+  ".webp": "🖼",
+  ".svg": "🖼",
+  ".pdf": "📕",
+  ".epub": "📕",
+  ".mobi": "📕",
+  ".txt": "📝",
+  ".srt": "📝",
+  ".ass": "📝",
+  ".nfo": "📝",
+  ".zip": "📦",
+  ".rar": "📦",
+  ".7z": "📦",
+  ".tar": "📦",
+  ".gz": "📦",
 };
 
 function getFileEmoji(filename: string): string {
@@ -23,17 +50,9 @@ function getFileEmoji(filename: string): string {
 }
 
 export function BtsowSearchDetail(props: { searchResult: BtsowSearchResult }) {
-  const { detail, isLoading } = useBtsowDetail(props.searchResult.hash);
+  const { detail, failed, isLoading } = useBtsowDetail(props.searchResult.hash);
 
-  return (
-    <Detail
-      isLoading={isLoading}
-      markdown={buildMarkdown(detail)}
-      navigationTitle={detail?.title || props.searchResult.title}
-      metadata={detail ? <DetailMetadata detail={detail} /> : undefined}
-      actions={<DetailActions detail={detail} searchResult={props.searchResult} />}
-    />
-  );
+  return <Detail isLoading={isLoading} markdown={buildMarkdown(detail, failed)} navigationTitle={detail?.title || props.searchResult.title} metadata={detail ? <DetailMetadata detail={detail} /> : undefined} actions={<DetailActions detail={detail} searchResult={props.searchResult} />} />;
 }
 
 function DetailMetadata({ detail }: { detail: BtsowDetailData }) {
@@ -56,15 +75,9 @@ function DetailMetadata({ detail }: { detail: BtsowDetailData }) {
   );
 }
 
-function DetailActions({
-  detail,
-  searchResult,
-}: {
-  detail?: BtsowDetailData;
-  searchResult: BtsowSearchResult;
-}) {
+function DetailActions({ detail, searchResult }: { detail?: BtsowDetailData; searchResult: BtsowSearchResult }) {
   const magnet = detail?.magnet || searchResult.magnet;
-  const link = detail?.link || "https://btsow.pics/detail/" + searchResult.hash;
+  const link = detail?.link || searchResult.link;
 
   return (
     <ActionPanel>
@@ -83,7 +96,8 @@ function DetailActions({
   );
 }
 
-function buildMarkdown(detail?: BtsowDetailData): string {
+function buildMarkdown(detail: BtsowDetailData | undefined, failed: boolean): string {
+  if (failed) return "## Unable to Load Btsow Detail";
   if (!detail) return "Loading...";
 
   const header = "## " + detail.title + "\n\n> " + detail.magnet + "\n\n---";

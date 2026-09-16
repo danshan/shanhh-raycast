@@ -1,67 +1,87 @@
-ai:
-  instructions: |
-    你是一个 JAV 搜索工具, 你能够搜索 JAV 影片, 并返回搜索结果; 
-    你能够使用 search-javbus-list 工具, 通过影片的名称或者番号, 模糊搜索 JAV 影片的列表, 并返回搜索结果, 如果需要获取更详细的影片数据, 需要从列表中获取每个元素的详情页 url, 然后使用 get-javbus-detail 工具获取详情; 
-    你能够使用 get-javbus-detail 工具, 通过 JAV 影片的详情页的 url, 获取 JAV 影片的详细数据, 包含影片的详情页 url、封面图片、标题、番号、日期、标签, 演员, 磁力连接, 文件信息, 等; 
-    你能够使用 search-javbus-magnet-list 工具, 通过 JAV 影片的详情页的 url 以及 磁力链接的搜索页 url, 获取 JAV 影片的磁力链接列表; 
-  evals:
-    - input: "@shanhh-nsfw 搜索 jav SSNI-001"
-      expected: 
-        - callTools: 
+instructions: |
+  你是一个 JavBus 搜索工具. 搜索列表时使用 search-javbus-list.
+  获取详情时, 必须先使用 search-javbus-list, 再把返回结果中的详情 URL 传给 get-javbus-detail.
+  获取磁力链接时, 必须依次使用 search-javbus-list, get-javbus-detail 和 search-javbus-magnet-list.
+  detailUrl 和 magnetSearchUrl 必须来自前序 Tool 的返回值, 不得猜测或自行构造 URL.
+evals:
+  - input: "@shanhh-nsfw 搜索 jav SSNI-001"
+    expected:
+      - callsTool:
           name: search-javbus-list
-          arguments: 
+          arguments:
             type: "有码"
             searchText: "SSNI-001"
-    - input: "@shanhh-nsfw 搜索 jav 的有码影片 SSNI-001"
-      expected: 
-        - callTools: 
+  - input: "@shanhh-nsfw 搜索 jav 的有码影片 SSNI-001"
+    expected:
+      - callsTool:
           name: search-javbus-list
-          arguments: 
+          arguments:
             type: "有码"
             searchText: "SSNI-001"
-
-    - input: "@shanhh-nsfw 搜索 javbus 的 SSNI-001"
-      expected: 
-        - callTools: 
+  - input: "@shanhh-nsfw 搜索 javbus 的 SSNI-001"
+    expected:
+      - callsTool:
           name: search-javbus-list
-          arguments: 
+          arguments:
             type: "有码"
             searchText: "SSNI-001"
-
-    - input: "@shanhh-nsfw 搜索影片 SSNI-001"
-      expected: 
-        - callTools: 
+  - input: "@shanhh-nsfw 搜索影片 SSNI-001"
+    expected:
+      - callsTool:
           name: search-javbus-list
-          arguments: 
+          arguments:
             type: "有码"
             searchText: "SSNI-001"
-
-    - input: "@shanhh-nsfw 搜索 jav 的无码影片 SSNI-001"
-      expected: 
-        - callTools: 
+  - input: "@shanhh-nsfw 搜索 jav 的无码影片 SSNI-001"
+    expected:
+      - callsTool:
           name: search-javbus-list
-          arguments: 
+          arguments:
             type: "无码"
             searchText: "SSNI-001"
-
-    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的详情"
-      expected: 
-        - callTools: 
+  - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的详情"
+    mocks:
+      search-javbus-list:
+        - url: "https://www.javbus.com/SSNI-001"
+          code: "SSNI-001"
+          thumbnail: "https://www.javbus.com/placeholder.jpg"
+          title: "Example"
+          date: "2024-01-01"
+          tags: []
+    expected:
+      - callsTool:
+          name: search-javbus-list
+          arguments:
+            type: "有码"
+            searchText: "SSNI-001"
+      - callsTool:
           name: get-javbus-detail
-          arguments: 
-            url: "https://www.javbus.com/SSNI-001"  
-
-    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的演员信息"
-      expected: 
-        - callTools: 
+          arguments:
+            url: "https://www.javbus.com/SSNI-001"
+  - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的磁力链接"
+    mocks:
+      search-javbus-list:
+        - url: "https://www.javbus.com/SSNI-001"
+          code: "SSNI-001"
+          thumbnail: "https://www.javbus.com/placeholder.jpg"
+          title: "Example"
+          date: "2024-01-01"
+          tags: []
+      get-javbus-detail:
+        url: "https://www.javbus.com/SSNI-001"
+        magnetSearchUrl: "https://www.javbus.com/ajax/uncledatoolsbyajax.php?gid=1&lang=zh&img=placeholder.jpg&uc=0"
+    expected:
+      - callsTool:
+          name: search-javbus-list
+          arguments:
+            type: "有码"
+            searchText: "SSNI-001"
+      - callsTool:
           name: get-javbus-detail
-          arguments: 
-            url: "https://www.javbus.com/SSNI-001"  
-
-    - input: "@shanhh-nsfw 搜索 jav 影片 SSNI-001 的磁力链接"
-      expected: 
-        - callTools: 
+          arguments:
+            url: "https://www.javbus.com/SSNI-001"
+      - callsTool:
           name: search-javbus-magnet-list
-          arguments: 
+          arguments:
             detailUrl: "https://www.javbus.com/SSNI-001"
-            magnetSearchUrl: "https://www.javbus.com/search/SSNI-001"
+            magnetSearchUrl: "https://www.javbus.com/ajax/uncledatoolsbyajax.php?gid=1&lang=zh&img=placeholder.jpg&uc=0"
