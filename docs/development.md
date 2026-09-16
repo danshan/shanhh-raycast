@@ -63,7 +63,7 @@ TOTP 文件是 JSON 数组, 每项包含 `account`, `website`, Base32 `secret` �
 `icon` 对应 `shanhh-totp/assets/<icon>.png`. 未指定, 名称非法或 asset 不存在时使用 `default.png`.
 存量站点图标只使用可唯一确认的品牌 Logo, 并统一尺寸, 留白和圆角容器. 无法确认的网站使用 `icon: "default"`, 不通过名称猜测域名或抓取 favicon.
 
-新增或补齐图标时使用项目 Skill `$generate-totp-icons`. 固定来源顺序为 Simple Icons, Dashboard Icons 和经过筛选的 Iconify 品牌集合. 生成只接受精确 slug 匹配, 产物保存在 Extension 内, 不增加运行时网络请求. Skill 只输出统计信息, 不输出认证文件路径, 网站清单或 Secret.
+新增或补齐图标时使用项目 Skill `$generate-totp-icons`. 固定来源顺序为 Simple Icons, Dashboard Icons 和经过筛选的 Iconify 品牌集合. 生成只接受精确 slug 或经过审核的关键词 alias, 产物保存在 Extension 内, 不增加运行时网络请求. Skill 只输出统计信息, 不输出认证文件路径, 网站清单或 Secret.
 
 ## 4. 开发
 

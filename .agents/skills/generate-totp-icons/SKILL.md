@@ -30,13 +30,13 @@ python3 .agents/skills/generate-totp-icons/scripts/generate_totp_icons.py \
   --iconify-json "$TMPDIR/iconify/node_modules/@iconify/json/json"
 ```
 
-5. Apply only exact slug matches by rerunning with `--apply`. The matching priority is Simple Icons, Dashboard Icons, then selected Iconify brand collections. Ambiguous or unmatched names remain `default`.
+5. Apply exact slug matches or the script's reviewed keyword aliases by rerunning with `--apply`. The matching priority is Simple Icons, Dashboard Icons, then selected Iconify brand collections. Ambiguous or unmatched names remain `default`.
 6. Inspect a representative sample of newly generated PNG files. Reject wordmarks, product variants, or visually incorrect matches and restore those entries to `default`.
 7. Verify every configured non-default icon exists, then run `npm test`, `npm run lint`, and `npm run build` in `shanhh-totp`.
 
 ## Constraints
 
-- Do not use favicons, fuzzy matching, guessed domains, or arbitrary search results.
+- Do not use favicons, fuzzy matching, guessed domains, or arbitrary search results. Add a keyword alias only when the brand mapping is explicit and stable.
 - Do not add runtime network access. Generated PNG files must be bundled in `shanhh-totp/assets`.
 - Keep the existing rounded light container, padding, and aspect-ratio-preserving logo treatment.
 - Do not overwrite an existing non-default icon unless regeneration is explicitly requested.

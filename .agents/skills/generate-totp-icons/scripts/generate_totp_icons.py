@@ -14,7 +14,13 @@ from collections import Counter
 from pathlib import Path
 
 
-ICONIFY_COLLECTIONS = ("logos", "devicon", "cib", "fa6-brands", "fa-brands")
+ICONIFY_COLLECTIONS = ("logos", "devicon", "thesvg-color", "cib", "fa6-brands", "fa-brands")
+KEYWORD_ALIASES = {
+    "qcloud": "tencentcloud",
+    "1password": "1password",
+    "jumpserver": "jumpserver",
+    "qiniu": "qiniu",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,6 +37,12 @@ def parse_args() -> argparse.Namespace:
 def slugify(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "-", normalized).strip("-")
+
+
+def resolve_icon_slug(value: str) -> str:
+    slug = slugify(value)
+    aliases = {target for keyword, target in KEYWORD_ALIASES.items() if keyword in slug.split("-")}
+    return aliases.pop() if len(aliases) == 1 else slug
 
 
 def read_config(path: Path) -> list[dict[str, object]]:
@@ -137,7 +149,7 @@ def main() -> None:
         current = entry.get("icon")
         if isinstance(current, str) and current not in ("", "default") and current in available:
             continue
-        slug = slugify(str(entry["website"]))
+        slug = resolve_icon_slug(str(entry["website"]))
         if not slug or slug in matches:
             continue
         for source_name, icons in sources:
@@ -149,7 +161,7 @@ def main() -> None:
     updated_entries = sum(
         1
         for entry in config
-        if slugify(str(entry["website"])) in matches
+        if resolve_icon_slug(str(entry["website"])) in matches
         and (entry.get("icon") in (None, "", "default") or entry.get("icon") not in available)
     )
 
@@ -165,15 +177,15 @@ def main() -> None:
             for png in temp_path.glob("*.png"):
                 os.replace(png, args.assets / png.name)
         for entry in config:
-            slug = slugify(str(entry["website"]))
+            slug = resolve_icon_slug(str(entry["website"]))
             if slug in matches and (entry.get("icon") in (None, "", "default") or entry.get("icon") not in available):
                 entry["icon"] = slug
         write_config(args.config, config)
 
     unmatched = {
-        slugify(str(entry["website"]))
+        resolve_icon_slug(str(entry["website"]))
         for entry in config
-        if entry.get("icon") in (None, "", "default") and slugify(str(entry["website"])) not in matches
+        if entry.get("icon") in (None, "", "default") and resolve_icon_slug(str(entry["website"])) not in matches
     }
     print(
         json.dumps(
