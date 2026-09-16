@@ -1,12 +1,14 @@
 # Shanhh Raycast Extension Store
 
-这是个人使用的 Raycast Extension Store. 当前仓库包含 3 个彼此独立的 Extension.
+这是个人使用的 Raycast Extension Store. 当前仓库包含 5 个彼此独立的 Extension.
 
 | Extension | Capability | AI Tools |
 | --- | --- | --- |
 | [`shanhh-totp`](./shanhh-totp) | 从本地配置生成, 搜索和复制 TOTP | No |
 | [`shanhh-myip`](./shanhh-myip) | 查看本地, 国内出口和全球出口 IP, 并查询 IP 详情 | No |
 | [`shanhh-nsfw`](./shanhh-nsfw) | 搜索 Btsow 和 JavBus 内容及磁力链接 | Yes |
+| [`shanhh-aitrans`](./shanhh-aitrans) | 使用 OpenAI-compatible API 翻译文本 | No |
+| [`shanhh-openai-usage`](./shanhh-openai-usage) | 查看个人 ChatGPT Codex 套餐用量和 Token Analytics | No |
 
 ## 快速开始
 
@@ -38,6 +40,7 @@ npm run dev
 
 ```bash
 npm run dev
+npm test
 npm run lint
 npm run build
 ```
@@ -51,8 +54,10 @@ npm run build
 ├── AGENTS.md
 ├── docs/
 ├── scripts/
+├── shanhh-aitrans/
 ├── shanhh-myip/
 ├── shanhh-nsfw/
+├── shanhh-openai-usage/
 └── shanhh-totp/
 ```
 
@@ -60,9 +65,9 @@ npm run build
 
 ## 当前边界
 
-- 3 个 Extension 独立安装, 开发, 构建和发布, 仓库根目录不提供统一 npm workspace 命令.
+- 5 个 Extension 独立安装, 开发, 构建和发布, 仓库根目录不提供统一 npm workspace 命令.
 - 用户配置由 Raycast Preferences 注入. TOTP 配置通过用户选择的本地文件读取.
-- 当前没有自动化测试脚本. 最低验证基线是目标 Extension 的 `npm run lint` 和 `npm run build`.
+- 每个 Extension 使用 Node.js 内置 test runner 覆盖已提取的纯逻辑. 最低验证基线是目标 Extension 的 `npm test`, `npm run lint` 和 `npm run build`.
 - 发布不是日常验证步骤, 不应由 Agent 或 CI 自动触发.
 
 ## 参考资料

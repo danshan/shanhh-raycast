@@ -7,6 +7,7 @@
 - 目标数据源要求的网络访问.
 - TOTP Extension 所需的本地认证文件.
 - AI Translator 所需的 OpenAI-compatible API Base URL, API Key 和模型名称.
+- Codex Usage 所需的 Codex CLI, 当前 ChatGPT 账号登录状态和可执行文件绝对路径.
 
 项目没有统一的 Node.js 版本文件. 在补充版本约束前, 以各 Extension 当前 Raycast CLI 和 lockfile 可安装的版本为准, 不在文档中虚构版本.
 
@@ -44,6 +45,7 @@ npm ci
 | `shanhh-aitrans` | `targetLanguage1` | Primary default target language | No |
 | `shanhh-aitrans` | `targetLanguage2` | Additional default target language or `None` | No |
 | `shanhh-aitrans` | `targetLanguage3` | Additional default target language or `None` | No |
+| `shanhh-openai-usage` | `codexBinPath` | Absolute path to the Codex CLI executable | No |
 
 不要创建包含真实值的 `.env`, fixture 或文档示例. Raycast Preferences 和用户选择的本地文件是当前配置来源.
 
@@ -94,7 +96,7 @@ npm run build
 - `npm run build` 执行该 Extension manifest 中定义的 Raycast build 命令.
 - `npm run fix-lint` 会修改文件, 只在已检查 diff 后使用.
 
-4 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
+5 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
 
 ## 6. 发布
 
@@ -129,6 +131,8 @@ Agent, 本地脚本或 CI 不得在没有明确授权时自动执行发布.
 - 检查外部页面结构是否变化, 尤其是 JavBus HTML Parser.
 - 检查日志前先确认没有输出 TOTP Secret, OTP, IP 或查询内容.
 - AI Translator 还需确认 Base URL 包含正确的 API version path, 模型名称存在, 且响应兼容 Chat Completions JSON 结构.
+- Codex Usage 无法启动时, 使用 `command -v codex` 确认 `codexBinPath` 是可执行文件绝对路径.
+- Codex Usage 返回登录或协议错误时, 先在终端确认 Codex CLI 已登录当前 ChatGPT 账号, 并升级到支持 `app-server`, `account/rateLimits/read` 和 `account/usage/read` 的版本.
 
 ### AI Tool 不可见
 

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "shanhh-openai-usage",
+  "type": "module",
+  "title": "Shanhh Codex Usage",
+  "description": "View personal ChatGPT Codex usage limits and token analytics.",
+  "icon": "extension-icon.png",
+  "author": "danshan",
+  "license": "MIT",
+  "categories": [
+    "Productivity"
+  ],
+  "commands": [
+    {
+      "name": "index",
+      "title": "Codex Usage",
+      "description": "View personal ChatGPT Codex usage limits and token analytics",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "codexBinPath",
+      "type": "textfield",
+      "required": true,
+      "title": "Codex Bin Path",
+      "description": "Absolute path to the Codex CLI executable, for example /usr/local/bin/codex.",
+      "placeholder": "/absolute/path/to/codex"
+    }
+  ],
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "test": "node --test test/*.test.ts",
+    "publish": "npx @raycast/api@latest publish"
+  },
+  "dependencies": {
+    "@raycast/api": "^1.94.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "20.8.10",
+    "@types/react": "19.0.10",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  }
+}

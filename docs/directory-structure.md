@@ -20,6 +20,7 @@
 ├── shanhh-aitrans/
 ├── shanhh-myip/
 ├── shanhh-nsfw/
+├── shanhh-openai-usage/
 └── shanhh-totp/
 ```
 
@@ -57,7 +58,7 @@
 | `src/index.tsx` | Command 入口和一级导航 | 认证材料, 大段协议实现 |
 | `src/components/` | Raycast UI, 导航和用户 Action | Secret, Cookie, 认证头 |
 | `src/hooks/` | UI 异步状态和错误反馈 | 重复的 Host 和协议实现 |
-| `src/clients/` | 单个远程系统的协议边界 | Raycast UI 组件 |
+| `src/clients/` | 单个远程系统或本地进程的协议边界 | Raycast UI 组件 |
 | `src/tools/` | AI Tool 输入和 Client 适配 | 重复 Client 逻辑, UI 状态 |
 | `src/types/` | API DTO 和 Preferences 类型 | 运行时副作用 |
 | `src/utils/` | 纯转换, Parser 和局部 trust-boundary helper | 页面状态和导航 |

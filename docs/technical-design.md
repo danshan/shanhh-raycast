@@ -9,6 +9,7 @@
 | UI | React and `@raycast/api` | Raycast API `^1.94.0` |
 | Async UI | React hooks and `@raycast/utils` | `usePromise` in NSFW |
 | HTTP | Native `fetch` and `got` | AI Translator uses `fetch`; My IP and NSFW use `got` |
+| Local process | Node.js `child_process` | Codex Usage uses App Server over stdio |
 | Local data | Node.js `fs`, `ip`, `otpauth` | TOTP file and local IP |
 | Parsing | `node-html-parser` and local Parser | JavBus HTML |
 | Quality gates | Node.js test runner and Raycast CLI | `node --test`, `ray lint`, `ray build` |
@@ -58,6 +59,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - NSFW 的搜索状态由 Hook 管理, 不增加全局响应缓存.
 - JavBus 图片本地代理只服务当前运行实例, 不作为持久缓存.
 - AI Translator 每次提交只发送一个包含全部目标语言的请求, 不缓存原文或结果.
+- Codex Usage 每次刷新启动用户配置的 Codex CLI App Server, 读取用量后终止进程, 不持久化账号信息或响应.
 
 只有可复现故障证明需要时, 才按 Domain 增加 timeout, 取消处理或带 TTL 的缓存. 不引入通用任务队列.
 
@@ -70,6 +72,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - `authFile` 中的 TOTP Secret 和生成的 OTP.
 - 用户 IP, 搜索内容, 详情 URL 和磁力链接.
 - AI Translator API Key, 原文和翻译结果.
+- Codex 账号用量限制和 Token Analytics.
 
 ### 5.2 日志规则
 
@@ -80,6 +83,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - IP 查询响应或用户查询内容.
 - 带查询词或磁力数据的完整 URL.
 - AI Translator API Key, 原文, 翻译结果或完整请求 URL.
+- Codex Bin Path, 账号信息或完整 App Server 响应.
 
 ### 5.3 Clipboard, Paste 和 Browser Action
 
@@ -92,8 +96,10 @@ TOTP, IP, 磁力链接和翻译结果支持用户触发的 Clipboard, Paste 或 
 - JavBus Client 对公开 Tool URL 执行 configured HTTPS origin 校验.
 - JavBus HTML Parser 保持纯函数, 缺失字段不再生成包含 `undefined` 的伪 URL.
 - AI Translator Client 校验 API URL, 目标语言数量和模型结构化响应, 并跳过与原文相同的目标语言.
+- Codex Usage Client 仅执行用户配置的绝对路径, 不经过 shell, 校验 App Server 的用量限制和 Token Analytics 响应, 并设置 timeout 与输出上限.
+- Codex Usage 使用纯函数生成主限额窗口 SVG 进度条和最近 30 天柱状图并嵌入 Detail, 不引入图表依赖或远程图表服务.
 - `ai.yaml` 使用 root-level `instructions` 和 `evals`, Eval 使用 `callsTool` 与 mocks 描述多 Tool 链路.
-- 4 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary, JavBus Parser 和翻译响应边界.
+- 5 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary, JavBus Parser, 翻译响应边界和 Codex 用量响应解析.
 
 ## 7. 后续演进边界
 

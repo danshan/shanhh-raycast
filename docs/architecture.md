@@ -4,12 +4,13 @@
 
 `shanhh-raycast` 是一个基于 Raycast API, React 和 TypeScript 的个人 Extension 集合. 每个一级目录都是可独立安装和发布的 Extension, 仓库根目录不承担运行时职责.
 
-当前仓库提供 4 类能力:
+当前仓库提供 5 类能力:
 
 - `shanhh-totp`: 从本地 JSON 文件生成和复制 TOTP.
 - `shanhh-myip`: 查询本地 IP, 国内出口 IP, 全球出口 IP 和 IP 详情.
 - `shanhh-nsfw`: 搜索 Btsow 和 JavBus 内容, 详情及磁力链接.
 - `shanhh-aitrans`: 通过用户配置的 OpenAI-compatible API 翻译单词, 短语和句子.
+- `shanhh-openai-usage`: 查询个人 ChatGPT Codex 套餐用量限制和 Token Analytics.
 
 ## 2. 框架入口
 
@@ -76,6 +77,7 @@ sequenceDiagram
 - My IP Client 并行获取两个公网出口地址, 校验响应并通过 `ipapi.co` 查询详情. Component 同时展示本地地址和独立请求状态.
 - NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用纯 Parser 转换返回数据. JavBus Client 管理同源 URL 校验和本地图片代理.
 - AI Translator 使用 Form 收集原文和 1 至 3 个目标语言. Client 发送一次 OpenAI Chat Completions 请求, 校验结构化结果, 再由 Detail 将首选译文作为默认复制 Action, 其他语境候选保留在 Actions 中.
+- Codex Usage 使用本地状态启动用户配置的 Codex CLI App Server. Client 通过 stdio 协议读取当前登录账号的用量限制, Reset Credits 和 Token Analytics, Component 在 Detail Metadata 展示额度和汇总指标, 在左侧展示 Reset Credit 明细, 并以本地生成的 SVG 进度条和柱状图展示主窗口剩余比例与最近 30 天 Token 用量.
 
 ## 5. AI Tool 数据流
 
@@ -99,16 +101,18 @@ JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情�
 | `shanhh-myip` | Local network, `api64.ipify.org`, `myip.ipip.net`, `ipapi.co` | No preferences |
 | `shanhh-nsfw` | Btsow API and user-configured JavBus host | `btsowHost`, `javbusHost` |
 | `shanhh-aitrans` | User-configured OpenAI-compatible API | `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3` |
+| `shanhh-openai-usage` | Local Codex App Server using the current ChatGPT login | `codexBinPath` |
 
 配置由 Raycast Preferences 提供. 本地认证文件只在运行时读取, 不进入仓库.
 
 ## 7. 运行时配置
 
-当前 manifest 共声明 9 个 Preference:
+当前 manifest 共声明 10 个 Preference:
 
 - `shanhh-totp`: `authFile`.
 - `shanhh-nsfw`: `btsowHost`, `javbusHost`.
 - `shanhh-myip`: No preferences.
 - `shanhh-aitrans`: `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3`.
+- `shanhh-openai-usage`: `codexBinPath`.
 
 配置格式和安全要求见 [development.md](./development.md).

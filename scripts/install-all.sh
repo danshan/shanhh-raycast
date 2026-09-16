@@ -4,7 +4,7 @@ set -euo pipefail
 
 readonly repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly npm_cache="${TMPDIR:-/tmp}/shanhh-raycast-npm-cache"
-readonly extensions=(shanhh-totp shanhh-myip shanhh-nsfw shanhh-aitrans)
+readonly extensions=(shanhh-totp shanhh-myip shanhh-nsfw shanhh-aitrans shanhh-openai-usage)
 
 for extension in "${extensions[@]}"; do
   printf 'Installing %s...\n' "$extension"
