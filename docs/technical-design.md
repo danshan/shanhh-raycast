@@ -58,7 +58,7 @@ Preference 是用户配置入口. 用户选择的 TOTP 文件是现有的本地�
 - My IP 的公网地址请求彼此独立, 可以并行加载.
 - NSFW 的搜索状态由 Hook 管理, 不增加全局响应缓存.
 - JavBus 图片本地代理只服务当前运行实例, 不作为持久缓存.
-- AI Translator 每次提交只发送一个包含全部目标语言的请求, 不缓存原文或结果.
+- AI Translator 每次请求包含全部目标语言, 不缓存原文或结果. AI 内容解析或结构校验失败时最多重试 3 次, 网络, HTTP 和鉴权错误不重试.
 - Codex Usage 每次刷新启动用户配置的 Codex CLI App Server, 读取用量后终止进程, 不持久化账号信息或响应.
 
 只有可复现故障证明需要时, 才按 Domain 增加 timeout, 取消处理或带 TTL 的缓存. 不引入通用任务队列.
@@ -95,7 +95,7 @@ TOTP, IP, 磁力链接和翻译结果支持用户触发的 Clipboard, Paste 或 
 - My IP Remote Request 已收敛到最小 Client, Component 不再记录 IP 或查询参数.
 - JavBus Client 对公开 Tool URL 执行 configured HTTPS origin 校验.
 - JavBus HTML Parser 保持纯函数, 缺失字段不再生成包含 `undefined` 的伪 URL.
-- AI Translator Client 校验 API URL, 目标语言数量和模型结构化响应, 并跳过与原文相同的目标语言.
+- AI Translator Client 校验 API URL, 目标语言数量和模型结构化响应, 并跳过与原文相同的目标语言. 结构化响应异常时, Client 在同一边界内最多重试 3 次.
 - Codex Usage Client 仅执行用户配置的绝对路径, 不经过 shell, 校验 App Server 的用量限制和 Token Analytics 响应, 并设置 timeout 与输出上限.
 - Codex Usage 使用纯函数生成主限额窗口 SVG 进度条和最近 30 天柱状图并嵌入 Detail, 不引入图表依赖或远程图表服务.
 - `ai.yaml` 使用 root-level `instructions` 和 `evals`, Eval 使用 `callsTool` 与 mocks 描述多 Tool 链路.
@@ -103,7 +103,7 @@ TOTP, IP, 磁力链接和翻译结果支持用户触发的 Clipboard, Paste 或 
 
 ## 7. 后续演进边界
 
-仅在实际故障证明有需要时增加 Remote Request timeout, retry 或持久缓存. 修改保持在对应 Client, Parser 或本地文件读取函数, 不创建通用网络框架. UI 行为继续使用 `npm run dev` 人工验证, 不增加大规模 snapshot suite.
+仅在实际故障证明有需要时增加 Remote Request timeout, retry 或持久缓存. AI Translator 已针对模型结构化响应异常增加固定 3 次重试, 不对传输类错误重试. 修改保持在对应 Client, Parser 或本地文件读取函数, 不创建通用网络框架. UI 行为继续使用 `npm run dev` 人工验证, 不增加大规模 snapshot suite.
 
 ## 8. Raycast 契约参考
 

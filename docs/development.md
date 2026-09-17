@@ -130,7 +130,7 @@ Agent, 本地脚本或 CI 不得在没有明确授权时自动执行发布.
 - 检查输入为空和异常路径是否结束 loading.
 - 检查外部页面结构是否变化, 尤其是 JavBus HTML Parser.
 - 检查日志前先确认没有输出 TOTP Secret, OTP, IP 或查询内容.
-- AI Translator 还需确认 Base URL 包含正确的 API version path, 模型名称存在, 且响应兼容 Chat Completions JSON 结构.
+- AI Translator 还需确认 Base URL 包含正确的 API version path, 模型名称存在, 且响应兼容 Chat Completions JSON 结构. 模型内容解析或结构校验失败会自动重试最多 3 次; HTTP, 鉴权和网络错误直接返回.
 - Codex Usage 无法启动时, 使用 `command -v codex` 确认 `codexBinPath` 是可执行文件绝对路径.
 - Codex Usage 返回登录或协议错误时, 先在终端确认 Codex CLI 已登录当前 ChatGPT 账号, 并升级到支持 `app-server`, `account/rateLimits/read` 和 `account/usage/read` 的版本.
 
