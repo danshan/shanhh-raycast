@@ -4,7 +4,9 @@ Shanhh Codex Usage 查询当前 ChatGPT 账号的 Codex 套餐用量限制和 To
 
 ## Features
 
-- 展示 Codex 主用量窗口和次用量窗口, 剩余比例与重置时间使用独立字段展示, 并在 Dashboard 中以进度条强调主窗口剩余额度.
+- 展示 Codex 主用量窗口和次用量窗口, 剩余比例与重置时间使用独立字段展示. Dashboard 按窗口时长优先选取 7 天额度, 以共用百分比刻度的双进度条比较额度剩余和时间剩余, 时间条按天标注.
+- 余量为额度剩余百分比减去时间剩余百分比. 差值大于 2 个百分点显示 Headroom, 小于 -2 显示 Below baseline, 其余显示 Near baseline; 额度用尽时单独提示. 时间按实际时间差计算, 每分钟本地更新; 额度仍通过 Refresh 获取, 可通过 Last Refreshed 判断数据时效.
+- 刷新时间缺失, 已到期或超出窗口范围时不显示余量判断. 没有周窗口时保留普通额度条, 没有 Token 历史时仍展示额度对比.
 - 在右侧展示当前可用的 Rate Limit Reset Credits 数量, 左侧仅列出每项 Credit 的过期时间.
 - 展示 Lifetime Tokens, Peak Daily Tokens, Turn Duration 和 Streak.
 - 以本地生成的最近 30 天柱状图展示每日 Token 用量, 缺失日期按零补齐.

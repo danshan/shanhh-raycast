@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Detail, environment, getPreferenceValues } from "@raycast/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CodexUsage, fetchCodexUsage } from "./clients/codex-app-server-client";
-import { buildDailyTokenUsageChart, buildResetCreditsDetails, formatDuration, formatNumber, formatPlanType, formatRemainingPercent, formatResetTime, formatWindowTitle } from "./usage";
+import { buildDailyTokenUsageChart, buildResetCreditsDetails, formatDuration, formatNumber, formatPlanType, formatRemainingPercent, formatResetTime, formatWindowTitle, selectDashboardLimit } from "./usage";
 
 type Preferences = {
   codexBinPath: string;
@@ -56,6 +56,7 @@ export default function Command() {
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [refreshedAt, setRefreshedAt] = useState<Date>();
+  const [now, setNow] = useState(Date.now);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +64,7 @@ export default function Command() {
     try {
       setUsage(await fetchCodexUsage(codexBinPath));
       setRefreshedAt(new Date());
+      setNow(Date.now());
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not load Codex usage.");
     } finally {
@@ -74,14 +76,19 @@ export default function Command() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
   const actions = <UsageActions onRefresh={() => void load()} />;
   const markdown = useMemo(() => {
     if (error) return `# Could Not Load Codex Usage\n\n${error}`;
     if (!usage) return "# Codex Usage\n\nLoading usage...";
-    const chart = buildDailyTokenUsageChart(usage.tokenUsage.dailyUsageBuckets, environment.appearance === "dark", usage.rateLimits.primary);
+    const chart = buildDailyTokenUsageChart(usage.tokenUsage.dailyUsageBuckets, environment.appearance === "dark", selectDashboardLimit(usage.rateLimits), now);
     const resetCredits = buildResetCreditsDetails(usage.rateLimits.resetCredits);
     return resetCredits ? `${chart}\n\n${resetCredits}` : chart;
-  }, [error, usage]);
+  }, [error, usage, now]);
 
   return <Detail navigationTitle={usage?.rateLimits.limitName ?? "Codex Usage"} isLoading={isLoading} markdown={markdown} metadata={usage ? <UsageMetadata usage={usage} refreshedAt={refreshedAt} /> : undefined} actions={actions} />;
 }
