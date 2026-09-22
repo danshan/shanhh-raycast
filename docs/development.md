@@ -140,3 +140,9 @@ Agent, 本地脚本或 CI 不得在没有明确授权时自动执行发布.
 - 检查文件名是否与 `package.json` 的 `tools[].name` 完全一致.
 - 检查 `ai.yaml` 是否使用当前 Raycast 支持的结构.
 - 增加或更新对应 Eval.
+
+### 扩展图标更新后仍显示旧背景
+
+- My IP 和 NSFW 的 manifest 使用 `extension-icon-transparent.png`, 对应 `assets/` 下的 512 × 512 RGBA PNG.
+- Raycast 可能保留同一路径的旧图标缓存. 如果源文件和已安装文件都已透明, 但界面仍显示旧背景, 使用新的图标文件名, 同步修改 `package.json` 的 `icon`, 再执行 `npm run dev` 重新加载.
+- 以 Raycast 搜索结果中的实际图标为验证依据. 仅检查 PNG 的 alpha 通道或构建成功不能确认缓存已更新.

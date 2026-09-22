@@ -10,6 +10,8 @@ Shanhh My IP 展示本地 IPv4, 国内公网出口 IP 和全球公网出口 IP, 
 
 该 Extension 不需要 Preferences. 网络查询依赖 `api64.ipify.org`, `myip.ipip.net` 和 `ipapi.co` 可访问.
 
+扩展图标使用 `assets/extension-icon-transparent.png`, 为带透明边角的 512 × 512 RGBA PNG. 图标资源更新与缓存处理见开发指南.
+
 ## Development
 
 ```bash

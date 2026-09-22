@@ -9,6 +9,8 @@ Shanhh NSFW 提供 Btsow 和 JavBus 搜索, 详情及磁力链接能力, 并暴�
 - 获取 JavBus 磁力链接.
 - 通过 Raycast AI 调用 JavBus 查询 Tools.
 
+扩展图标使用 `assets/extension-icon-transparent.png`, 为带透明边角的 512 × 512 RGBA PNG. 图标资源更新与缓存处理见开发指南.
+
 ## Preferences
 
 | Name | Purpose |
