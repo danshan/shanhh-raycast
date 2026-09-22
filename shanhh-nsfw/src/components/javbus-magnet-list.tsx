@@ -8,8 +8,8 @@ export function JavbusMagnetList(props: { detail?: JavbusDetailData }) {
 
   return (
     <List isLoading={isLoading} filtering={false} navigationTitle={props.detail?.title || "Search Magnets"} throttle>
-      {(magnets || []).length == 0 ? (
-        <List.EmptyView title="No results" description="Try another search term" />
+      {(magnets || []).length === 0 ? (
+        <List.EmptyView icon={Icon.Link} title="No Magnet Links" description="No magnet links are available for this title." />
       ) : (
         (magnets || []).map((result: JavbusMagnet) => (
           <List.Item
@@ -19,7 +19,7 @@ export function JavbusMagnetList(props: { detail?: JavbusDetailData }) {
             accessories={buildAccessories({ result })}
             actions={
               <ActionPanel>
-                <Action.CopyToClipboard title="Copy Magnet" content={result.magnet} />
+                <Action.CopyToClipboard title="Copy Magnet Link" content={result.magnet} icon={Icon.Link} />
               </ActionPanel>
             }
           />

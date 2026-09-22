@@ -1,53 +1,7 @@
 import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search";
-import { Action, ActionPanel, Color, Detail } from "@raycast/api";
+import { Action, ActionPanel, Color, Detail, Icon } from "@raycast/api";
 import React from "react";
 import { useBtsowDetail } from "../hooks/use-btsow-search";
-
-const FILE_EMOJI: Record<string, string> = {
-  ".mkv": "🎬",
-  ".mp4": "🎬",
-  ".avi": "🎬",
-  ".wmv": "🎬",
-  ".flv": "🎬",
-  ".mov": "🎬",
-  ".webm": "🎬",
-  ".ts": "🎬",
-  ".m2ts": "🎬",
-  ".mp3": "🎵",
-  ".flac": "🎵",
-  ".wav": "🎵",
-  ".aac": "🎵",
-  ".ogg": "🎵",
-  ".m4a": "🎵",
-  ".jpg": "🖼",
-  ".jpeg": "🖼",
-  ".png": "🖼",
-  ".gif": "🖼",
-  ".bmp": "🖼",
-  ".webp": "🖼",
-  ".svg": "🖼",
-  ".pdf": "📕",
-  ".epub": "📕",
-  ".mobi": "📕",
-  ".txt": "📝",
-  ".srt": "📝",
-  ".ass": "📝",
-  ".nfo": "📝",
-  ".zip": "📦",
-  ".rar": "📦",
-  ".7z": "📦",
-  ".tar": "📦",
-  ".gz": "📦",
-};
-
-function getFileEmoji(filename: string): string {
-  const dotIdx = filename.lastIndexOf(".");
-  if (dotIdx >= 0) {
-    const ext = filename.slice(dotIdx).toLowerCase();
-    return FILE_EMOJI[ext] || "📄";
-  }
-  return "📄";
-}
 
 export function BtsowSearchDetail(props: { searchResult: BtsowSearchResult }) {
   const { detail, failed, isLoading } = useBtsowDetail(props.searchResult.hash);
@@ -82,7 +36,7 @@ function DetailActions({ detail, searchResult }: { detail?: BtsowDetailData; sea
   return (
     <ActionPanel>
       <ActionPanel.Section>
-        <Action.CopyToClipboard title="Copy Magnet Link" content={magnet} />
+        <Action.CopyToClipboard title="Copy Magnet Link" content={magnet} icon={Icon.Link} />
       </ActionPanel.Section>
       <ActionPanel.Section title="Copy">
         <Action.CopyToClipboard title="Copy Title" content={detail?.title || searchResult.title} />
@@ -90,7 +44,7 @@ function DetailActions({ detail, searchResult }: { detail?: BtsowDetailData; sea
         <Action.CopyToClipboard title="Copy Link" content={link} />
       </ActionPanel.Section>
       <ActionPanel.Section title="Links">
-        <Action.OpenInBrowser title="Open in Browser" url={link} />
+        <Action.OpenInBrowser title="Open Btsow" url={link} />
       </ActionPanel.Section>
     </ActionPanel>
   );
@@ -106,7 +60,7 @@ function buildMarkdown(detail: BtsowDetailData | undefined, failed: boolean): st
   if (detail.files.length > 0) {
     lines.push("### Files");
     detail.files.forEach((f) => {
-      lines.push(getFileEmoji(f.name) + " **" + f.name + "** `" + f.size + "`");
+      lines.push("- **" + f.name + "** — `" + f.size + "`");
     });
   }
 

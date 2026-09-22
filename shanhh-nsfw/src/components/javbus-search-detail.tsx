@@ -21,6 +21,8 @@ export function JavbusSearchDetail(props: { url: string }) {
             <Detail.Metadata.Label title="Director" text={detail.director?.title} />
             <Detail.Metadata.Label title="Producer" text={detail.producer?.title} />
             <Detail.Metadata.Label title="Publisher" text={detail.publisher?.title} />
+            {detail.series?.title && <Detail.Metadata.Label title="Series" text={detail.series.title} />}
+            <Detail.Metadata.Separator />
             {detail.category && detail.category.length > 0 && (
               <Detail.Metadata.TagList title="Category">
                 {detail.category.map((cate) => (
@@ -36,22 +38,30 @@ export function JavbusSearchDetail(props: { url: string }) {
               </Detail.Metadata.TagList>
             )}
             <Detail.Metadata.Separator />
-            <Detail.Metadata.Link title="Source URL" text={"From javbus.com"} target={props.url} />
+            <Detail.Metadata.Link title="Source" text="JavBus" target={props.url} />
           </Detail.Metadata>
         ) : null
       }
       actions={
         <ActionPanel>
-          {detail?.magnetSearchUrl && <Action.Push title="Search Magnets" target={<JavbusMagnetList detail={detail} />} icon={{ source: Icon.Download }} />}
-          {detail?.series?.url && <Action.Push title="Search Series" target={<JavbusSearchUrlList url={detail?.series?.url || ""} />} icon={{ source: Icon.List }} />}
-          {(detail?.actors || []).map((actor) => (
-            <Action.Push key={actor.url} title={`Search ${actor.title}`} target={<JavbusSearchUrlList url={actor.url || ""} />} icon={{ source: Icon.Person, tintColor: Color.Blue }} />
-          ))}
-          {(detail?.category || []).map((cate) => (
-            <Action.Push key={cate.url} title={`Search ${cate.title}`} target={<JavbusSearchUrlList url={cate.url || ""} />} icon={{ source: Icon.Tag, tintColor: Color.Green }} />
-          ))}
-          <Action.OpenInBrowser title="Open in Browser" url={props.url} />
-          <Action.CopyToClipboard title="Copy URL" content={props.url} />
+          <ActionPanel.Section>{detail?.magnetSearchUrl && <Action.Push title="Show Magnet Links" target={<JavbusMagnetList detail={detail} />} icon={Icon.Download} />}</ActionPanel.Section>
+          <ActionPanel.Section title="Related Search">
+            {detail?.series?.url && <Action.Push title="Browse Series" target={<JavbusSearchUrlList url={detail.series.url} />} icon={Icon.List} />}
+            {(detail?.actors || []).map((actor) => (
+              <Action.Push key={actor.url} title={`Browse ${actor.title}`} target={<JavbusSearchUrlList url={actor.url} />} icon={{ source: Icon.Person, tintColor: Color.Blue }} />
+            ))}
+            {(detail?.category || []).map((category) => (
+              <Action.Push key={category.url} title={`Browse ${category.title}`} target={<JavbusSearchUrlList url={category.url} />} icon={{ source: Icon.Tag, tintColor: Color.Green }} />
+            ))}
+          </ActionPanel.Section>
+          <ActionPanel.Section title="Copy">
+            <Action.CopyToClipboard title="Copy Code" content={detail?.code || ""} />
+            <Action.CopyToClipboard title="Copy Title" content={detail?.title || ""} />
+            <Action.CopyToClipboard title="Copy URL" content={props.url} />
+          </ActionPanel.Section>
+          <ActionPanel.Section title="Links">
+            <Action.OpenInBrowser title="Open Javbus" url={props.url} />
+          </ActionPanel.Section>
         </ActionPanel>
       }
     />
@@ -64,7 +74,7 @@ function getMarkdown(detail: JavbusDetailData | undefined, failed: boolean) {
   let markdown = "Loading...";
   if (detail) {
     markdown = `## ${detail.title}\n\n`;
-    markdown += `![${detail.thumbnail}](${detail.thumbnail})\n\n`;
+    markdown += `![${detail.code}](${detail.thumbnail})\n\n`;
     if (detail.images.length > 0) {
       markdown += "### Images\n\n";
       markdown += `${detail.images.map((image) => `![${image}](${image})`).join(" ")}`;

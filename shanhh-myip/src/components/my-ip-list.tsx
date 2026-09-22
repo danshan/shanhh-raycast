@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Icon, List, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List, useNavigation } from "@raycast/api";
 import { address } from "ip";
 import { useEffect, useState } from "react";
 import { getChineseIp, getGlobalIp } from "../clients/ip-client";
@@ -48,44 +48,53 @@ export function MyIpList() {
 
   return (
     <List isLoading={globalStatus === "loading" || chineseStatus === "loading"}>
-      <IpItem label="Local IP Address" ip={localIp} onCopy={pop} />
-      <IpItem label="Public Chinese IP Address" ip={chineseIp} onCopy={pop} />
-      {chineseStatus === "success" && <LookupItem label="Chinese IP Lookup" ip={chineseIp} />}
-      <IpItem label="Public Global IP Address" ip={globalIp} onCopy={pop} />
-      {globalStatus === "success" && <LookupItem label="Global IP Lookup" ip={globalIp} />}
+      <List.Section title="Local Network">
+        <IpItem label="Local IP Address" scope="Local" ip={localIp} status="success" onCopy={pop} />
+      </List.Section>
+      <List.Section title="Public Network">
+        <IpItem label="Chinese Public IP Address" scope="China" ip={chineseIp} status={chineseStatus} onCopy={pop} supportsLookup />
+        <IpItem label="Global Public IP Address" scope="Global" ip={globalIp} status={globalStatus} onCopy={pop} supportsLookup />
+      </List.Section>
     </List>
   );
 }
 
-function IpItem({ label, ip, onCopy }: { label: string; ip: string; onCopy: () => void }) {
+type IpItemProps = {
+  label: string;
+  scope: "Local" | "China" | "Global";
+  ip: string;
+  status: LoadingStatus;
+  onCopy: () => void;
+  supportsLookup?: boolean;
+};
+
+const scopeColors: Record<IpItemProps["scope"], Color> = {
+  Local: Color.Blue,
+  China: Color.Orange,
+  Global: Color.Green,
+};
+
+function IpItem({ label, scope, ip, status, onCopy, supportsLookup = false }: IpItemProps) {
+  const isAvailable = status === "success" && Boolean(ip);
+
   return (
     <List.Item
-      icon={label.startsWith("Local") ? Icon.Desktop : Icon.Globe}
-      title={ip}
-      subtitle={!ip ? "Loading..." : undefined}
-      accessories={[{ text: label }]}
+      icon={{
+        source: status === "failure" ? Icon.Warning : scope === "Local" ? Icon.Desktop : Icon.Globe,
+        tintColor: status === "failure" ? Color.Red : scopeColors[scope],
+      }}
+      title={isAvailable ? ip : label}
+      subtitle={isAvailable ? label : status === "loading" ? "Loading..." : "Unavailable"}
+      accessories={[{ tag: { value: scope, color: scopeColors[scope] } }]}
       actions={
-        ip && ip !== "Unavailable" ? (
+        isAvailable ? (
           <ActionPanel>
-            <Action.CopyToClipboard content={ip} onCopy={onCopy} />
+            <ActionPanel.Section>
+              <Action.CopyToClipboard title="Copy Address" content={ip} onCopy={onCopy} />
+              {supportsLookup && <Action.Push title="Show Details" target={<IpLookup ip={ip} />} icon={Icon.Eye} />}
+            </ActionPanel.Section>
           </ActionPanel>
         ) : undefined
-      }
-    />
-  );
-}
-
-function LookupItem({ label, ip }: { label: string; ip: string }) {
-  return (
-    <List.Item
-      icon={Icon.Eye}
-      title=""
-      subtitle={label}
-      accessories={[{ text: `Details of ${label.toLowerCase()}` }]}
-      actions={
-        <ActionPanel>
-          <Action.Push title={label} target={<IpLookup ip={ip} />} icon={Icon.Eye} />
-        </ActionPanel>
       }
     />
   );
