@@ -4,6 +4,7 @@
 
 - Compare weekly quota remaining with time until reset using aligned progress bars and daily ticks.
 - Select the weekly window by duration, retain quota display without token history, and suppress pacing advice for invalid or expired reset times.
+- Replace the 30-day daily token bar chart with a local 365-day GitHub-style heatmap aligned to the latest API start date, with ten positive intensity levels, distinct zero and missing states, a data-through date, and a legend.
 
 ## 1.0.0
 

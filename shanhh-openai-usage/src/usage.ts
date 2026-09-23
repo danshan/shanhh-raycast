@@ -3,6 +3,7 @@ import type { DailyUsageBucket, RateLimitResetCredit, RateLimits, RateLimitWindo
 const numberFormatter = new Intl.NumberFormat("en-US");
 const compactNumberFormatter = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
 const DAY_MS = 86_400_000;
+const HEATMAP_DAYS = 365;
 const WEEK_MINS = 10_080;
 const PACE_TOLERANCE = 2;
 
@@ -88,20 +89,20 @@ export function buildResetCreditsDetails(resetCredits: RateLimits["resetCredits"
   return `${heading}\n\n${resetCredits.credits.map(formatResetCredit).join("\n")}`;
 }
 
-function latestThirtyDays(buckets: DailyUsageBucket[]): DailyUsageBucket[] {
+function latestHeatmapDays(buckets: DailyUsageBucket[]) {
   const tokensByDate = new Map(buckets.map((bucket) => [bucket.startDate, bucket.tokens]));
   const latestDate = [...tokensByDate.keys()].sort().at(-1);
   if (!latestDate) return [];
 
   const endTime = Date.parse(`${latestDate}T00:00:00Z`);
-  return Array.from({ length: 30 }, (_, index) => {
-    const startDate = new Date(endTime - (29 - index) * DAY_MS).toISOString().slice(0, 10);
-    return { startDate, tokens: tokensByDate.get(startDate) ?? 0 };
+  return Array.from({ length: HEATMAP_DAYS }, (_, index) => {
+    const startDate = new Date(endTime - (HEATMAP_DAYS - 1 - index) * DAY_MS).toISOString().slice(0, 10);
+    return { startDate, tokens: tokensByDate.get(startDate) ?? null };
   });
 }
 
 export function buildDailyTokenUsageChart(buckets: DailyUsageBucket[], isDark: boolean, limit?: RateLimitWindow | null, now = Date.now()): string {
-  const days = latestThirtyDays(buckets);
+  const days = latestHeatmapDays(buckets);
   if (days.length === 0 && !limit) return "## Daily Token Usage\n\nNo token usage recorded.";
 
   const width = 800;
@@ -109,13 +110,12 @@ export function buildDailyTokenUsageChart(buckets: DailyUsageBucket[], isDark: b
   const isWeekly = limit?.windowDurationMins === WEEK_MINS;
   const pacing = limit ? getWeeklyPacing(limit, now) : null;
   const top = limit ? (pacing ? 272 : isWeekly ? 184 : 152) : 72;
-  const height = days.length === 0 ? top + 36 : top + 288;
+  const cellSize = 10;
+  const stride = 13;
+  const height = days.length === 0 ? top + 36 : top + 54 + 6 * stride + cellSize + 82;
   const chartWidth = 704;
-  const chartHeight = 224;
-  const slotWidth = chartWidth / days.length;
-  const barWidth = Math.max(4, slotWidth - 5);
-  const maxTokens = Math.max(...days.map((day) => day.tokens), 1);
-  const totalTokens = days.reduce((total, day) => total + day.tokens, 0);
+  const maxTokens = Math.max(...days.map((day) => day.tokens ?? 0), 0);
+  const totalTokens = days.reduce((total, day) => total + (day.tokens ?? 0), 0);
   const textColor = isDark ? "#E6E7E9" : "#24262A";
   const mutedColor = isDark ? "#8B8F97" : "#6B7078";
   const gridColor = isDark ? "#34373D" : "#E0E2E5";
@@ -147,25 +147,51 @@ export function buildDailyTokenUsageChart(buckets: DailyUsageBucket[], isDark: b
       })()
     : "";
 
-  const grid = Array.from({ length: 5 }, (_, index) => {
-    const ratio = index / 4;
-    const y = top + chartHeight - chartHeight * ratio;
-    const value = maxTokens * ratio;
-    return `<line x1="${left}" y1="${y}" x2="${left + chartWidth}" y2="${y}" stroke="${gridColor}" stroke-width="1"/><text x="${left - 12}" y="${y + 4}" text-anchor="end" fill="${mutedColor}" font-size="12">${compactNumberFormatter.format(value)}</text>`;
-  }).join("");
+  const chart = (() => {
+    if (days.length === 0) return `<text x="${left}" y="${top}" fill="${mutedColor}" font-size="14">No token usage recorded.</text>`;
 
-  const bars = days
-    .map((day, index) => {
-      const barHeight = (day.tokens / maxTokens) * chartHeight;
-      const x = left + index * slotWidth + (slotWidth - barWidth) / 2;
-      const y = top + chartHeight - barHeight;
-      const color = day.tokens === maxTokens ? peakColor : barColor;
-      const label = index % 5 === 0 || index === days.length - 1 ? `<text x="${x + barWidth / 2}" y="${top + chartHeight + 24}" text-anchor="middle" fill="${mutedColor}" font-size="11">${day.startDate.slice(5).replace("-", "/")}</text>` : "";
-      return `<rect class="usage-bar" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="2" fill="${color}"><title>${day.startDate}: ${numberFormatter.format(day.tokens)} tokens</title></rect>${label}`;
-    })
-    .join("");
-
-  const chart = days.length === 0 ? `<text x="${left}" y="${top}" fill="${mutedColor}" font-size="14">No token usage recorded.</text>` : `${grid}${bars}`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="-apple-system, BlinkMacSystemFont, sans-serif"><title>Codex usage dashboard</title><text x="${left}" y="30" fill="${textColor}" font-size="22" font-weight="600">Daily Token Usage</text><text x="${left}" y="52" fill="${mutedColor}" font-size="13">Latest 30 days · ${numberFormatter.format(totalTokens)} tokens total</text>${progress}${chart}</svg>`;
+    const colors = isDark ? ["#34373D", "#0E4429", "#0C522C", "#095F2F", "#086D32", "#127D35", "#1B8F39", "#26A641", "#2FB749", "#35C64E", "#39D353"] : ["#E0E2E5", "#DCFCE7", "#BBF7D0", "#9BE9A8", "#75DC8A", "#54CF6F", "#40C463", "#30A14E", "#258940", "#216E39", "#14532D"];
+    const intensityLevels = colors.length - 1;
+    // API dates are calendar days. UTC arithmetic keeps week rows stable across time zones and DST.
+    const firstWeekday = new Date(`${days[0].startDate}T00:00:00Z`).getUTCDay();
+    const columns = Math.ceil((firstWeekday + days.length) / 7);
+    const gridWidth = columns * stride - (stride - cellSize);
+    const gridLeft = left + (chartWidth - gridWidth) / 2;
+    const gridTop = top + 54;
+    const gridBottom = gridTop + 6 * stride + cellSize;
+    const recordedDays = days.filter((day) => day.tokens !== null).length;
+    const dateLabel = `<text x="${left}" y="${top + 6}" fill="${textColor}" font-size="13">Data through ${days.at(-1)!.startDate}</text><text x="${left + chartWidth}" y="${top + 6}" text-anchor="end" fill="${mutedColor}" font-size="12">${recordedDays} / ${HEATMAP_DAYS} days reported</text>`;
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label, row) => `<text x="${gridLeft - 12}" y="${gridTop + row * stride + cellSize / 2 + 4}" text-anchor="end" fill="${mutedColor}" font-size="12">${label}</text>`).join("");
+    const monthLabels = days
+      .map((day, index) => ({ ...day, index, column: Math.floor((firstWeekday + index) / 7) }))
+      .filter((day) => day.index === 0 || day.startDate.endsWith("-01"))
+      .filter((day, index, labels) => index === labels.length - 1 || labels[index + 1].column - day.column >= 2)
+      .map((day) => {
+        const month = new Date(`${day.startDate}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+        return `<text x="${gridLeft + day.column * stride}" y="${gridTop - 14}" fill="${mutedColor}" font-size="12">${month}</text>`;
+      })
+      .join("");
+    const cells = days
+      .map((day, index) => {
+        const slot = firstWeekday + index;
+        const x = gridLeft + Math.floor(slot / 7) * stride;
+        const y = gridTop + (slot % 7) * stride;
+        const level = day.tokens === null ? null : day.tokens === 0 ? 0 : Math.min(intensityLevels, Math.max(1, Math.ceil((day.tokens / maxTokens) * intensityLevels)));
+        const fill = level === null ? `fill="none" stroke="${mutedColor}" stroke-dasharray="3 2"` : `fill="${colors[level]}"`;
+        const description = day.tokens === null ? "No record" : `${numberFormatter.format(day.tokens)} tokens`;
+        return `<rect class="usage-day" data-date="${day.startDate}" data-level="${level ?? "missing"}" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" ${fill}><title>${day.startDate}: ${description}</title></rect>`;
+      })
+      .join("");
+    const legendY = gridBottom + 26;
+    const legendStart = left + chartWidth - 50 - intensityLevels * 22;
+    const legend = `<rect x="${left}" y="${legendY}" width="14" height="14" rx="3" fill="none" stroke="${mutedColor}" stroke-dasharray="3 2"/><text x="${left + 22}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">No record</text><rect x="${left + 110}" y="${legendY}" width="14" height="14" rx="3" fill="${colors[0]}"/><text x="${left + 132}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">0 tokens</text><text x="${legendStart - 10}" y="${legendY + 11}" text-anchor="end" fill="${mutedColor}" font-size="12">Less</text>${colors
+      .slice(1)
+      .map((color, index) => `<rect class="usage-scale" x="${legendStart + index * 22}" y="${legendY}" width="14" height="14" rx="3" fill="${color}"/>`)
+      .join("")}<text x="${left + chartWidth}" y="${legendY + 11}" text-anchor="end" fill="${mutedColor}" font-size="12">More</text>`;
+    const scale = `<text x="${left}" y="${legendY + 38}" fill="${mutedColor}" font-size="12">${days[0].startDate} to ${days.at(-1)!.startDate}</text><text x="${left + chartWidth}" y="${legendY + 38}" text-anchor="end" fill="${mutedColor}" font-size="12">Daily peak: ${compactNumberFormatter.format(maxTokens)} tokens</text>`;
+    return `${dateLabel}${weekdays}${monthLabels}${cells}${legend}${scale}`;
+  })();
+  const summary = days.length === 0 ? "Token history unavailable" : `Last ${HEATMAP_DAYS} days · ${numberFormatter.format(totalTokens)} tokens recorded`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" font-family="-apple-system, BlinkMacSystemFont, sans-serif"><title>Codex usage dashboard</title><text x="${left}" y="30" fill="${textColor}" font-size="22" font-weight="600">Daily Token Usage</text><text x="${left}" y="52" fill="${mutedColor}" font-size="13">${summary}</text>${progress}${chart}</svg>`;
   return `![Daily Token Usage](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")})`;
 }

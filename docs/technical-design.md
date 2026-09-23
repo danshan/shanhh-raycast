@@ -97,7 +97,7 @@ TOTP, IP, 磁力链接和翻译结果支持用户触发的 Clipboard, Paste 或 
 - JavBus HTML Parser 保持纯函数, 缺失字段不再生成包含 `undefined` 的伪 URL.
 - AI Translator Client 校验 API URL, 目标语言数量和模型结构化响应, 并跳过与原文相同的目标语言. 结构化响应异常时, Client 在同一边界内最多重试 3 次.
 - Codex Usage Client 仅执行用户配置的绝对路径, 不经过 shell, 校验 App Server 的用量限制和 Token Analytics 响应, 并设置 timeout 与输出上限.
-- Codex Usage 使用纯函数生成额度 SVG 进度条和最近 30 天柱状图并嵌入 Detail. 根据窗口时长优先选择周额度, 使用实际剩余时间比较额度与时间剩余百分比, 以 2 个百分点为中性区间; 刷新时间无效或已到期时停止比较, 历史 Token 为空时仍展示额度. 时间每分钟本地更新, 不增加远程轮询, 不引入图表依赖或远程图表服务.
+- Codex Usage 使用纯函数生成额度 SVG 进度条和 365 天 Token 热力图并嵌入 Detail. 热力图以最新 API `startDate` 对齐 UTC 日历, 以周为列, 星期为行, 按展示区间正值峰值映射 10 级绿色强度, 并区分零值与无记录日期, 展示数据截止日期和图例. 根据窗口时长优先选择周额度, 使用实际剩余时间比较额度与时间剩余百分比, 以 2 个百分点为中性区间; 刷新时间无效或已到期时停止比较, 历史 Token 为空时仍展示额度. 时间每分钟本地更新, 不增加远程轮询, 不引入图表依赖或远程图表服务.
 - `ai.yaml` 使用 root-level `instructions` 和 `evals`, Eval 使用 `callsTool` 与 mocks 描述多 Tool 链路.
 - 5 个 Extension 均提供 `test` script, 覆盖 TOTP, IP response, URL trust boundary, JavBus Parser, 翻译响应边界和 Codex 用量响应解析.
 

@@ -77,7 +77,7 @@ sequenceDiagram
 - My IP Client 并行获取两个公网出口地址, 校验响应并通过 `ipapi.co` 查询详情. Component 同时展示本地地址和独立请求状态.
 - NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用纯 Parser 转换返回数据. JavBus Client 管理同源 URL 校验和本地图片代理.
 - AI Translator 使用 Form 收集原文和 1 至 3 个目标语言. Client 发送 OpenAI Chat Completions 请求并校验结构化结果, 内容解析或结构校验失败时最多重试 3 次, 再由 Detail 将首选译文作为默认复制 Action, 其他语境候选保留在 Actions 中.
-- Codex Usage 使用本地状态启动用户配置的 Codex CLI App Server. Client 通过 stdio 协议读取当前登录账号的用量限制, Reset Credits 和 Token Analytics, Component 在 Detail Metadata 展示额度和汇总指标, 在左侧展示 Reset Credit 明细, 并以本地生成的 SVG 双进度条比较周额度剩余与时间剩余, 同时展示最近 30 天 Token 用量柱状图. 周窗口按时长选择, 时间每分钟本地更新, 额度通过手动刷新更新.
+- Codex Usage 使用本地状态启动用户配置的 Codex CLI App Server. Client 通过 stdio 协议读取当前登录账号的用量限制, Reset Credits 和 Token Analytics, Component 在 Detail Metadata 展示额度和汇总指标, 在左侧展示 Reset Credit 明细, 并以本地生成的 SVG 双进度条比较周额度剩余与时间剩余, 同时展示按最新 API `startDate` 对齐 UTC 日历的 365 天 Token 用量热力图. 热力图按周列出, 按星期分行, 用 10 级绿色正值强度区分 Token 用量, 明确区分零值和无记录日期, 并展示数据截止日期与图例. 周窗口按时长选择, 时间每分钟本地更新, 额度通过手动刷新更新.
 
 ## 5. AI Tool 数据流
 

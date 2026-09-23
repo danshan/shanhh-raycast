@@ -9,7 +9,7 @@ Shanhh Codex Usage 查询当前 ChatGPT 账号的 Codex 套餐用量限制和 To
 - 刷新时间缺失, 已到期或超出窗口范围时不显示余量判断. 没有周窗口时保留普通额度条, 没有 Token 历史时仍展示额度对比.
 - 在右侧展示当前可用的 Rate Limit Reset Credits 数量, 左侧仅列出每项 Credit 的过期时间.
 - 展示 Lifetime Tokens, Peak Daily Tokens, Turn Duration 和 Streak.
-- 以本地生成的最近 30 天柱状图展示每日 Token 用量, 缺失日期按零补齐.
+- 以本地生成的 GitHub 风格 365 天热力图展示每日 Token 用量. 图表按 API 返回的最新 `startDate` 对齐 UTC 日历, 以周为列, 星期为行, 使用相对展示区间正值峰值的 10 级绿色强度; 明确区分零值与无记录日期, 并显示数据截止日期和图例.
 - 支持手动刷新和打开 ChatGPT Codex Usage Dashboard.
 
 ## Preferences

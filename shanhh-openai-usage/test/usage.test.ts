@@ -77,7 +77,7 @@ test("renders the weekly comparison without daily token history", () => {
   assert.match(svg, /Time Remaining/);
   assert.match(svg, /Resets in 12 hours/);
   assert.match(svg, /No token usage recorded/);
-  assert.doesNotMatch(svg, /class="usage-bar"/);
+  assert.doesNotMatch(svg, /class="usage-day"|0 tokens recorded/);
 });
 
 test("removes pacing advice when reset data is missing or due", () => {
@@ -165,23 +165,114 @@ test("rejects unsafe token counts", () => {
   );
 });
 
-test("builds a local 30-day token usage chart and fills missing dates", () => {
+test("renders a 365-day heatmap without treating missing records as zero", () => {
   const markdown = buildDailyTokenUsageChart(
     [
+      { startDate: "2025-09-16", tokens: 10_000 },
+      { startDate: "2026-09-13", tokens: 0 },
       { startDate: "2026-09-14", tokens: 100 },
       { startDate: "2026-09-16", tokens: 300 },
     ],
     true,
     { usedPercent: 25.5, windowDurationMins: 10_080, resetsAt: 1_700_000_000 },
   );
-  const encodedSvg = markdown.match(/base64,([^)]*)/)?.[1];
-  assert.ok(encodedSvg);
-
-  const svg = Buffer.from(encodedSvg, "base64").toString("utf8");
+  const svg = decodeChart(markdown);
   assert.match(svg, /Daily Token Usage/);
   assert.match(svg, /7-Day Limit Remaining/);
   assert.match(svg, /74\.5%/);
-  assert.match(svg, /2026-09-15: 0 tokens/);
+  assert.match(svg, /Last 365 days · 400 tokens recorded/);
+  assert.match(svg, /Data through 2026-09-16/);
+  assert.match(svg, /3 \/ 365 days reported/);
+  assert.match(svg, /2026-09-13: 0 tokens/);
+  assert.match(svg, /2026-09-15: No record/);
   assert.match(svg, /2026-09-16: 300 tokens/);
-  assert.equal((svg.match(/class="usage-bar"/g) ?? []).length, 30);
+  assert.match(svg, /data-date="2026-09-13" data-level="0"/);
+  assert.match(svg, /data-date="2026-09-15" data-level="missing"[^>]*fill="none"[^>]*stroke-dasharray=/);
+  assert.match(svg, /data-date="2026-09-16" data-level="10"/);
+  assert.match(svg, /2025-09-17 to 2026-09-16/);
+  assert.match(svg, /Daily peak: 300 tokens/);
+  assert.doesNotMatch(svg, /2025-09-16|2026-09-15: 0 tokens|usage-bar/);
+  assert.equal((svg.match(/class="usage-day"/g) ?? []).length, 365);
+});
+
+test("anchors the calendar to the latest API date across years and ignores input order", () => {
+  const buckets = [
+    { startDate: "2026-01-02", tokens: 20 },
+    { startDate: "2025-01-02", tokens: 1_000 },
+    { startDate: "2025-01-03", tokens: 10 },
+  ];
+  const svg = decodeChart(buildDailyTokenUsageChart(buckets, false, null, Date.parse("2026-02-01T00:00:00Z")));
+  assert.match(svg, /2025-01-03 to 2026-01-02/);
+  assert.match(svg, /Last 365 days · 30 tokens recorded/);
+  assert.doesNotMatch(svg, /2025-01-02|2026-01-03|2026-02-01/);
+  assert.equal(decodeChart(buildDailyTokenUsageChart([...buckets].reverse(), false)), svg);
+});
+
+test("keeps leap days and Sunday week boundaries aligned across DST in UTC", () => {
+  const svg = decodeChart(buildDailyTokenUsageChart([{ startDate: "2024-03-11", tokens: 1 }], false));
+  assert.match(svg, /2024-02-29: No record/);
+  const position = (date: string) => {
+    const match = svg.match(new RegExp(`data-date="${date}"[^>]* x="([\\d.]+)" y="([\\d.]+)"`));
+    assert.ok(match);
+    return { x: Number(match[1]), y: Number(match[2]) };
+  };
+  const saturday = position("2024-03-09");
+  const sunday = position("2024-03-10");
+  const monday = position("2024-03-11");
+  assert.ok(sunday.x > saturday.x);
+  assert.ok(sunday.y < saturday.y);
+  assert.equal(monday.x, sunday.x);
+  assert.ok(monday.y > sunday.y);
+  assert.match(svg, /2023-03-13 to 2024-03-11/);
+  assert.equal((svg.match(/class="usage-day"/g) ?? []).length, 365);
+});
+
+test("fits all 53 calendar weeks inside the SVG in both themes", () => {
+  for (const isDark of [false, true]) {
+    const svg = decodeChart(buildDailyTokenUsageChart([{ startDate: "2026-09-22", tokens: 1 }], isDark, weeklyLimit(80, 1), NOW));
+    const bounds = svg.match(/viewBox="0 0 (\d+) (\d+)"/);
+    assert.ok(bounds);
+    const cells = [...svg.matchAll(/class="usage-day"[^>]* x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g)];
+    assert.equal(cells.length, 365);
+    assert.equal(new Set(cells.map((cell) => cell[1])).size, 53);
+    assert.equal(new Set(cells.map((cell) => cell[2])).size, 7);
+    for (const [, x, y, width, height] of cells) {
+      assert.ok(Number(x) >= 0 && Number(x) + Number(width) <= Number(bounds[1]));
+      assert.ok(Number(y) >= 0 && Number(y) + Number(height) <= Number(bounds[2]));
+    }
+  }
+});
+
+test("labels full months when the calendar begins near a month boundary", () => {
+  const svg = decodeChart(buildDailyTokenUsageChart([{ startDate: "2026-09-22", tokens: 1 }], true));
+  for (const month of ["Jul", "Aug", "Sep"]) assert.match(svg, new RegExp(`>${month}</text>`));
+});
+
+test("uses ten positive intensity levels relative to the displayed peak in both themes", () => {
+  const tokens = [0, 1, 10, 11, 20, 21, 30, 31, 40, 41, 50, 51, 60, 61, 70, 71, 80, 81, 90, 91, 100];
+  const levels = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10];
+  const buckets = tokens.map((tokens, index) => ({ startDate: `2024-03-${String(index + 1).padStart(2, "0")}`, tokens }));
+  for (const isDark of [false, true]) {
+    const svg = decodeChart(buildDailyTokenUsageChart(buckets, isDark));
+    for (let index = 0; index < levels.length; index++) {
+      assert.match(svg, new RegExp(`data-date="${buckets[index].startDate}" data-level="${levels[index]}"`));
+    }
+    assert.match(svg, /No record/);
+    assert.match(svg, />0 tokens<\/text>/);
+    assert.match(svg, />Less<\/text>/);
+    assert.match(svg, />More<\/text>/);
+    const scaleColors = [...svg.matchAll(/class="usage-scale"[^>]*fill="([^"]+)"/g)].map((match) => match[1]);
+    assert.equal(scaleColors.length, 10);
+    assert.equal(new Set(scaleColors).size, 10);
+    assert.doesNotMatch(svg, /NaN|Infinity|undefined/);
+  }
+});
+
+test("renders explicit zero usage and absent history without inventing positive activity", () => {
+  const svg = decodeChart(buildDailyTokenUsageChart([{ startDate: "2024-02-29", tokens: 0 }], true));
+  assert.match(svg, /Last 365 days · 0 tokens recorded/);
+  assert.match(svg, /Daily peak: 0 tokens/);
+  assert.match(svg, /data-date="2024-02-29" data-level="0"/);
+  assert.doesNotMatch(svg, /data-level="(?:[1-9]|10)"|NaN|Infinity/);
+  assert.equal(buildDailyTokenUsageChart([], true), "## Daily Token Usage\n\nNo token usage recorded.");
 });
