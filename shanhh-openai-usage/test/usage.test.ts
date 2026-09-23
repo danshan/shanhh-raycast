@@ -187,7 +187,8 @@ test("renders a 365-day heatmap without treating missing records as zero", () =>
   assert.match(svg, /2026-09-15: No record/);
   assert.match(svg, /2026-09-16: 300 tokens/);
   assert.match(svg, /data-date="2026-09-13" data-level="0"/);
-  assert.match(svg, /data-date="2026-09-15" data-level="missing"[^>]*fill="none"[^>]*stroke-dasharray=/);
+  assert.match(svg, /data-date="2026-09-15" data-level="missing"[^>]*fill="#FFFFFF"/);
+  assert.doesNotMatch(svg, /<rect[^>]*data-level="missing"[^>]*stroke/);
   assert.match(svg, /data-date="2026-09-16" data-level="10"/);
   assert.match(svg, /2025-09-17 to 2026-09-16/);
   assert.match(svg, /Daily peak: 300 tokens/);

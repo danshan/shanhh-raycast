@@ -177,14 +177,14 @@ export function buildDailyTokenUsageChart(buckets: DailyUsageBucket[], isDark: b
         const x = gridLeft + Math.floor(slot / 7) * stride;
         const y = gridTop + (slot % 7) * stride;
         const level = day.tokens === null ? null : day.tokens === 0 ? 0 : Math.min(intensityLevels, Math.max(1, Math.ceil((day.tokens / maxTokens) * intensityLevels)));
-        const fill = level === null ? `fill="none" stroke="${mutedColor}" stroke-dasharray="3 2"` : `fill="${colors[level]}"`;
+        const fill = level === null ? "#FFFFFF" : colors[level];
         const description = day.tokens === null ? "No record" : `${numberFormatter.format(day.tokens)} tokens`;
-        return `<rect class="usage-day" data-date="${day.startDate}" data-level="${level ?? "missing"}" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" ${fill}><title>${day.startDate}: ${description}</title></rect>`;
+        return `<rect class="usage-day" data-date="${day.startDate}" data-level="${level ?? "missing"}" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${fill}"><title>${day.startDate}: ${description}</title></rect>`;
       })
       .join("");
     const legendY = gridBottom + 26;
     const legendStart = left + chartWidth - 50 - intensityLevels * 22;
-    const legend = `<rect x="${left}" y="${legendY}" width="14" height="14" rx="3" fill="none" stroke="${mutedColor}" stroke-dasharray="3 2"/><text x="${left + 22}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">No record</text><rect x="${left + 110}" y="${legendY}" width="14" height="14" rx="3" fill="${colors[0]}"/><text x="${left + 132}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">0 tokens</text><text x="${legendStart - 10}" y="${legendY + 11}" text-anchor="end" fill="${mutedColor}" font-size="12">Less</text>${colors
+    const legend = `<rect x="${left}" y="${legendY}" width="14" height="14" rx="3" fill="#FFFFFF"/><text x="${left + 22}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">No record</text><rect x="${left + 110}" y="${legendY}" width="14" height="14" rx="3" fill="${colors[0]}"/><text x="${left + 132}" y="${legendY + 11}" fill="${mutedColor}" font-size="12">0 tokens</text><text x="${legendStart - 10}" y="${legendY + 11}" text-anchor="end" fill="${mutedColor}" font-size="12">Less</text>${colors
       .slice(1)
       .map((color, index) => `<rect class="usage-scale" x="${legendStart + index * 22}" y="${legendY}" width="14" height="14" rx="3" fill="${color}"/>`)
       .join("")}<text x="${left + chartWidth}" y="${legendY + 11}" text-anchor="end" fill="${mutedColor}" font-size="12">More</text>`;
