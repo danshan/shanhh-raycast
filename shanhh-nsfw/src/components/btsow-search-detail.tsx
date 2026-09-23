@@ -67,8 +67,7 @@ function buildMarkdown(detail: BtsowDetailData | undefined, failed: boolean): st
     }
     if (groups.other.length > 0) {
       lines.push("---");
-      lines.push("> Other files (" + groups.other.length + ")");
-      groups.other.forEach((file) => lines.push("> - " + file.name + " — `" + file.size + "`"));
+      lines.push(groups.other.map((file) => "> - " + file.name).join("\n"));
     }
   }
 
