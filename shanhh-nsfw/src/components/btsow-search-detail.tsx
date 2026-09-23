@@ -2,6 +2,7 @@ import { BtsowDetailData, BtsowSearchResult } from "../types/btsow-search";
 import { Action, ActionPanel, Color, Detail, Icon } from "@raycast/api";
 import React from "react";
 import { useBtsowDetail } from "../hooks/use-btsow-search";
+import { groupBtsowFiles } from "../utils/btsow-files";
 
 export function BtsowSearchDetail(props: { searchResult: BtsowSearchResult }) {
   const { detail, failed, isLoading } = useBtsowDetail(props.searchResult.hash);
@@ -59,9 +60,16 @@ function buildMarkdown(detail: BtsowDetailData | undefined, failed: boolean): st
 
   if (detail.files.length > 0) {
     lines.push("### Files");
-    detail.files.forEach((f) => {
-      lines.push("- **" + f.name + "** — `" + f.size + "`");
-    });
+    const groups = groupBtsowFiles(detail.files);
+    for (const group of groups.priority) {
+      lines.push("#### " + group.category + " (" + group.files.length + ")");
+      group.files.forEach((file) => lines.push("- **" + file.name + "** — `" + file.size + "`"));
+    }
+    if (groups.other.length > 0) {
+      lines.push("---");
+      lines.push("> Other files (" + groups.other.length + ")");
+      groups.other.forEach((file) => lines.push("> - " + file.name + " — `" + file.size + "`"));
+    }
   }
 
   return lines.join("\n\n");

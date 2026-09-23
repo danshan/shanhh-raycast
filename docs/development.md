@@ -37,7 +37,7 @@ npm ci
 | Extension | Name | Purpose | Sensitive |
 | --- | --- | --- | --- |
 | `shanhh-totp` | `authFile` | TOTP JSON file | Contains secrets |
-| `shanhh-nsfw` | `btsowHost` | Btsow browser host | No |
+| `shanhh-nsfw` | `btsowHost` | Btsow API and browser host | No |
 | `shanhh-nsfw` | `javbusHost` | JavBus request host | No |
 | `shanhh-aitrans` | `apiBaseUrl` | OpenAI-compatible API base URL | No |
 | `shanhh-aitrans` | `apiKey` | Bearer API key | Yes |

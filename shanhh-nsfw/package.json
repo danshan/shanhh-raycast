@@ -41,11 +41,11 @@
       "name": "btsowHost",
       "type": "textfield",
       "title": "Btsow Site",
-      "description": "input site name, all available sites are listed below or check in https://tellme.pw/btsow.",
-      "placeholder": "e.g. https://btsow.com/",
+      "description": "Btsow API and browser host.",
+      "placeholder": "e.g. https://btsow.live",
       "link": "https://tellme.pw/btsow",
       "required": true,
-      "default": "https://btsow.motorcycles"
+      "default": "https://btsow.live"
     },
     {
       "name": "javbusHost",

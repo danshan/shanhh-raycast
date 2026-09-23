@@ -99,7 +99,7 @@ JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情�
 | --- | --- | --- |
 | `shanhh-totp` | 用户选择的本地 JSON 文件 | `authFile`, 文件内含 TOTP Secret |
 | `shanhh-myip` | Local network, `api64.ipify.org`, `myip.ipip.net`, `ipapi.co` | No preferences |
-| `shanhh-nsfw` | Btsow API and user-configured JavBus host | `btsowHost`, `javbusHost` |
+| `shanhh-nsfw` | User-configured Btsow and JavBus hosts | `btsowHost`, `javbusHost` |
 | `shanhh-aitrans` | User-configured OpenAI-compatible API | `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3` |
 | `shanhh-openai-usage` | Local Codex App Server using the current ChatGPT login | `codexBinPath` |
 
