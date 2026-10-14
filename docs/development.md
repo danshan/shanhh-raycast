@@ -46,6 +46,7 @@ npm ci
 | `shanhh-aitrans` | `targetLanguage2` | Additional default target language or `None` | No |
 | `shanhh-aitrans` | `targetLanguage3` | Additional default target language or `None` | No |
 | `shanhh-openai-usage` | `codexBinPath` | Absolute path to the Codex CLI executable | No |
+| `shanhh-openai-usage` | `nodeBinPath` | Optional absolute path to the Node.js executable used by npm or Mise Codex launchers | No |
 
 不要创建包含真实值的 `.env`, fixture 或文档示例. Raycast Preferences 和用户选择的本地文件是当前配置来源.
 

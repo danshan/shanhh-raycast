@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
-import { isAbsolute } from "node:path";
+import { delimiter, dirname, isAbsolute } from "node:path";
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const MAX_STDOUT_BYTES = 1_000_000;
+const MAX_STDERR_BYTES = 8_192;
+const SYSTEM_PATH_ENTRIES = process.platform === "win32" ? [] : ["/usr/bin", "/bin", "/usr/sbin", "/sbin"];
 const INITIALIZE_REQUEST_ID = 1;
 const RATE_LIMITS_REQUEST_ID = 2;
 const TOKEN_USAGE_REQUEST_ID = 3;
@@ -45,6 +47,32 @@ export type CodexUsage = {
   rateLimits: RateLimits;
   tokenUsage: TokenUsage;
 };
+
+function summarizeStderr(stderr: string): string | null {
+  const firstLine = stderr.trim().split(/\r?\n/, 1)[0]?.trim();
+  if (!firstLine) return null;
+
+  const summary = firstLine
+    .replace(/(?:https?:\/\/)[^\s]+/gi, "[url]")
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "[account]")
+    .replace(/\b(?:bearer\s+)?(?:sk|rk|sess|token)[-_][A-Za-z0-9_-]{8,}/gi, "[redacted]")
+    .replace(/(?:\/[\w.@+-]+){2,}/g, "[path]")
+    .slice(0, 180);
+
+  return summary || null;
+}
+
+export function describeCodexAppServerExit(stderr: string, code: number | null, signal: NodeJS.Signals | null): string {
+  const details = [
+    [/node(?:: command not found|: not found)|env: node: no such file|node(?:\.js)? executable.*not found/i, "Node.js was not found. Check Node Bin Path in Preferences."],
+    [/failed to initialize (?:sqlite )?state runtime/i, "Codex could not initialize its local state. Check that Raycast can access Codex data."],
+    [/operation not permitted|permission denied|\bEACCES\b/i, "Codex could not access a required local resource."],
+    [/not logged in|authentication required|no credentials/i, "Codex CLI is not authenticated. Sign in to Codex CLI and retry."],
+  ].find(([pattern]) => (pattern as RegExp).test(stderr));
+  const summary = details ? (details[1] as string) : summarizeStderr(stderr) ? `Codex App Server exited before returning usage. CLI diagnostic: ${summarizeStderr(stderr)}` : "Codex App Server exited before returning usage.";
+  const exitStatus = code !== null ? ` (exit code ${code})` : signal ? ` (signal ${signal})` : "";
+  return `${summary}${exitStatus}`;
+}
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -164,13 +192,25 @@ export function parseTokenUsageResponse(payload: unknown): TokenUsage {
   };
 }
 
-export async function fetchCodexUsage(codexBinPath: string): Promise<CodexUsage> {
+export function buildCodexEnvironment(nodeBinPath?: string, baseEnv: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const nodeExecutable = nodeBinPath?.trim();
+  if (nodeExecutable && !isAbsolute(nodeExecutable)) throw new Error("Node Bin Path must be an absolute path.");
+
+  return {
+    ...baseEnv,
+    PATH: [...new Set([nodeExecutable ? dirname(nodeExecutable) : undefined, baseEnv.PATH, ...SYSTEM_PATH_ENTRIES].filter(Boolean))].join(delimiter),
+  };
+}
+
+export async function fetchCodexUsage(codexBinPath: string, nodeBinPath?: string): Promise<CodexUsage> {
   const executable = codexBinPath.trim();
   if (!isAbsolute(executable)) throw new Error("Codex Bin Path must be an absolute path.");
+  const env = buildCodexEnvironment(nodeBinPath);
 
   return await new Promise((resolve, reject) => {
-    const child = spawn(executable, ["app-server", "--stdio"], { stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(executable, ["app-server", "--stdio"], { env, stdio: ["pipe", "pipe", "pipe"] });
     let buffer = "";
+    let stderr = "";
     let rateLimits: RateLimits | undefined;
     let tokenUsage: TokenUsage | undefined;
     let settled = false;
@@ -217,11 +257,14 @@ export async function fetchCodexUsage(codexBinPath: string): Promise<CodexUsage>
     }
 
     child.on("error", () => fail("Could not start Codex. Check Codex Bin Path in Preferences."));
-    child.on("exit", () => {
-      if (!settled) fail("Codex App Server exited before returning usage.");
+    child.on("exit", (code, signal) => {
+      if (!settled) fail(describeCodexAppServerExit(stderr, code, signal));
     });
     child.stdin.on("error", () => fail("Could not communicate with Codex App Server."));
-    child.stderr.resume();
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (chunk: string) => {
+      stderr = `${stderr}${chunk}`.slice(-MAX_STDERR_BYTES);
+    });
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => {
       buffer += chunk;

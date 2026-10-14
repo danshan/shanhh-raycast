@@ -1,10 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseRateLimitsResponse, parseTokenUsageResponse } from "../src/clients/codex-app-server-client.ts";
+import { buildCodexEnvironment, describeCodexAppServerExit, parseRateLimitsResponse, parseTokenUsageResponse } from "../src/clients/codex-app-server-client.ts";
 import { buildDailyTokenUsageChart, buildResetCreditsDetails, formatRemainingPercent, formatWindowTitle, getWeeklyPacing, selectDashboardLimit } from "../src/usage.ts";
 
 const NOW = Date.parse("2026-09-22T00:00:00Z");
 const DAY_MS = 86_400_000;
+
+test("adds the configured Node executable directory to the Codex process PATH", () => {
+  const env = buildCodexEnvironment("/opt/node/bin/node", { PATH: "/usr/bin:/bin", OTHER_VALUE: "preserved" });
+  const pathEntries = env.PATH?.split(process.platform === "win32" ? ";" : ":");
+  assert.ok(pathEntries?.includes("/opt/node/bin"));
+  assert.ok(pathEntries?.includes("/usr/bin"));
+  if (process.platform !== "win32") {
+    assert.ok(pathEntries?.includes("/bin"));
+    assert.ok(pathEntries?.includes("/usr/sbin"));
+    assert.ok(pathEntries?.includes("/sbin"));
+  }
+  assert.equal(env.OTHER_VALUE, "preserved");
+  assert.throws(() => buildCodexEnvironment("node", { PATH: "/usr/bin" }), /absolute path/);
+});
+
+test("adds standard system paths when the Raycast process has no PATH", () => {
+  const env = buildCodexEnvironment(undefined, { OTHER_VALUE: "preserved" });
+  if (process.platform !== "win32") assert.equal(env.PATH, "/usr/bin:/bin:/usr/sbin:/sbin");
+  assert.equal(env.OTHER_VALUE, "preserved");
+});
+
+test("classifies Codex App Server startup failures without exposing raw stderr", () => {
+  assert.match(describeCodexAppServerExit("env: node: No such file or directory", 127, null), /Node.js was not found/);
+  assert.match(describeCodexAppServerExit("failed to initialize sqlite state runtime", 1, null), /initialize its local state/);
+  assert.equal(describeCodexAppServerExit("unexpected output with private details", 1, null), "Codex App Server exited before returning usage. CLI diagnostic: unexpected output with private details (exit code 1)");
+  assert.equal(describeCodexAppServerExit("Error: failed to open /Users/private/.codex/state.db for user@example.com", 1, null), "Codex App Server exited before returning usage. CLI diagnostic: Error: failed to open [path] for [account] (exit code 1)");
+});
 
 function weeklyLimit(usedPercent: number, days: number) {
   return { usedPercent, windowDurationMins: 10_080, resetsAt: (NOW + days * DAY_MS) / 1000 };

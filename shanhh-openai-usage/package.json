@@ -24,8 +24,16 @@
       "type": "textfield",
       "required": true,
       "title": "Codex Bin Path",
-      "description": "Absolute path to the Codex CLI executable, for example /usr/local/bin/codex.",
+      "description": "Full absolute path to the Codex CLI executable file, not a folder or shell command. Find it with `command -v codex` in the terminal where Codex works. If the path points to an npm or Mise launcher, also configure Node Bin Path below.",
       "placeholder": "/absolute/path/to/codex"
+    },
+    {
+      "name": "nodeBinPath",
+      "type": "textfield",
+      "required": false,
+      "title": "Node Bin Path",
+      "description": "Optional full absolute path to the Node.js executable file, not its folder. Set this when Codex Usage reports that the App Server exits before returning usage and Codex was installed with npm or Mise. Run `mise which node` (or `command -v node`) in the terminal where Codex works, then paste the resulting file path. The extension adds its folder to the Codex process PATH. Leave blank if Raycast can already find `node`.",
+      "placeholder": "/absolute/path/to/node"
     }
   ],
   "scripts": {

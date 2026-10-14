@@ -14,13 +14,15 @@ Shanhh Codex Usage 查询当前 ChatGPT 账号的 Codex 套餐用量限制和 To
 
 ## Preferences
 
-在 Raycast Preferences 中配置 `codexBinPath`. 该值必须是已安装并登录当前 ChatGPT 账号的 Codex CLI 可执行文件绝对路径. 可在终端执行以下命令获取:
+在 Raycast Preferences 中配置 `Codex Bin Path`. 填写已安装并登录当前 ChatGPT 账号的 Codex CLI 可执行文件完整绝对路径, 不是目录或命令名称. 在 Codex CLI 可正常运行的终端中执行以下命令, 并将输出的文件路径粘贴到该字段:
 
 ```bash
 command -v codex
 ```
 
-Extension 直接执行配置的 `<codexBinPath> app-server --stdio`, 通过本地 App Server 读取当前登录账号的用量. Extension 不读取 Codex 认证文件, 不要求 Admin API Key, 也不记录可执行文件路径, 账号信息或完整响应.
+如果 `Codex Bin Path` 指向 npm 或 Mise 安装的启动脚本, 且 Raycast 报告 App Server 提前退出, 还需要配置 `Node Bin Path`. 该字段填写 Node.js 可执行文件的完整绝对路径, 不是其所在目录. 推荐在上述终端执行 `mise which node`; 如果未使用 Mise, 执行 `command -v node`. 将输出的文件路径粘贴到 `Node Bin Path`. Extension 会将该文件所在目录加入 Codex 子进程的 `PATH`, 让启动脚本能够找到 `node`. 如果 Raycast 已能找到 Node.js, 可以留空.
+
+Extension 直接执行配置的 Codex CLI 路径并附加 `app-server --stdio`, 通过本地 App Server 读取当前登录账号的用量. Extension 不读取 Codex 认证文件, 不要求 Admin API Key, 也不记录可执行文件路径, 账号信息或完整响应.
 
 Codex App Server 当前属于实验性 CLI 接口. Codex CLI 升级后若协议发生不兼容变化, 需要同步更新 Extension.
 

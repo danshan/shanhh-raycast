@@ -5,6 +5,7 @@ import { buildDailyTokenUsageChart, buildResetCreditsDetails, formatDuration, fo
 
 type Preferences = {
   codexBinPath: string;
+  nodeBinPath?: string;
 };
 
 function UsageActions({ onRefresh }: { onRefresh: () => void }) {
@@ -51,7 +52,7 @@ function UsageMetadata({ usage, refreshedAt }: { usage: CodexUsage; refreshedAt?
 }
 
 export default function Command() {
-  const { codexBinPath } = getPreferenceValues<Preferences>();
+  const { codexBinPath, nodeBinPath } = getPreferenceValues<Preferences>();
   const [usage, setUsage] = useState<CodexUsage>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +63,7 @@ export default function Command() {
     setIsLoading(true);
     setError(undefined);
     try {
-      setUsage(await fetchCodexUsage(codexBinPath));
+      setUsage(await fetchCodexUsage(codexBinPath, nodeBinPath));
       setRefreshedAt(new Date());
       setNow(Date.now());
     } catch (caught) {
@@ -70,7 +71,7 @@ export default function Command() {
     } finally {
       setIsLoading(false);
     }
-  }, [codexBinPath]);
+  }, [codexBinPath, nodeBinPath]);
 
   useEffect(() => {
     void load();
