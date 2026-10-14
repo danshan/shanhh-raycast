@@ -1,0 +1,39 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "shanhh-dhcp",
+  "type": "module",
+  "title": "Shanhh DHCP",
+  "description": "Manage macOS network services and saved manual IPv4 configurations.",
+  "icon": "command-icon.png",
+  "author": "danshan",
+  "owner": "shanhh",
+  "categories": ["Productivity"],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Shanhh DHCP",
+      "description": "Switch network services between DHCP and manual IPv4",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.94.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.6",
+    "@types/node": "20.8.10",
+    "@types/react": "19.0.10",
+    "eslint": "^8.51.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "test": "node --test test/*.test.ts",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}

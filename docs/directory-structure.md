@@ -18,6 +18,7 @@
 ├── scripts/
 │   └── install-all.sh
 ├── shanhh-aitrans/
+├── shanhh-dhcp/
 ├── shanhh-myip/
 ├── shanhh-nsfw/
 ├── shanhh-openai-usage/

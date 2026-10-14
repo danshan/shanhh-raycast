@@ -48,6 +48,8 @@ npm ci
 | `shanhh-openai-usage` | `codexBinPath` | Absolute path to the Codex CLI executable | No |
 | `shanhh-openai-usage` | `nodeBinPath` | Optional absolute path to the Node.js executable used by npm or Mise Codex launchers | No |
 
+`shanhh-dhcp` 不需要 Preferences. 它通过 macOS `/usr/sbin/networksetup` 管理网络服务的 IPv4 / DNS, 命名手动配置保存在该 Extension 自己的 Raycast LocalStorage 中. 应用配置时 macOS 可能要求授权.
+
 不要创建包含真实值的 `.env`, fixture 或文档示例. Raycast Preferences 和用户选择的本地文件是当前配置来源.
 
 TOTP 文件是 JSON 数组, 每项包含 `account`, `website`, Base32 `secret` 和可选的 `icon`:
@@ -97,7 +99,7 @@ npm run build
 - `npm run build` 执行该 Extension manifest 中定义的 Raycast build 命令.
 - `npm run fix-lint` 会修改文件, 只在已检查 diff 后使用.
 
-5 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
+6 个 Extension 都提供 `test` script. 新增非平凡纯逻辑时, 在目标 Extension 的 `test/` 中补充最小用例, 不引入 UI snapshot framework.
 
 ## 6. 发布
 

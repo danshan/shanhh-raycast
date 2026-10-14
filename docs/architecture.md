@@ -4,13 +4,14 @@
 
 `shanhh-raycast` 是一个基于 Raycast API, React 和 TypeScript 的个人 Extension 集合. 每个一级目录都是可独立安装和发布的 Extension, 仓库根目录不承担运行时职责.
 
-当前仓库提供 5 类能力:
+当前仓库提供 6 类能力:
 
 - `shanhh-totp`: 从本地 JSON 文件生成和复制 TOTP.
 - `shanhh-myip`: 查询本地 IP, 国内出口 IP, 全球出口 IP 和 IP 详情.
 - `shanhh-nsfw`: 搜索 Btsow 和 JavBus 内容, 详情及磁力链接.
 - `shanhh-aitrans`: 通过用户配置的 OpenAI-compatible API 翻译单词, 短语和句子.
 - `shanhh-openai-usage`: 查询个人 ChatGPT Codex 套餐用量限制和 Token Analytics.
+- `shanhh-dhcp`: 管理 macOS 网络服务的 DHCP 与手动 IPv4 配置.
 
 ## 2. 框架入口
 
@@ -78,6 +79,7 @@ sequenceDiagram
 - NSFW UI 通过 Hook 调用 Btsow 或 JavBus Client, 再使用纯 Parser 转换返回数据. JavBus Client 管理同源 URL 校验和本地图片代理.
 - AI Translator 使用 Form 收集原文和 1 至 3 个目标语言. Client 发送 OpenAI Chat Completions 请求并校验结构化结果, 内容解析或结构校验失败时最多重试 3 次, 再由 Detail 将首选译文作为默认复制 Action, 其他语境候选保留在 Actions 中.
 - Codex Usage 使用本地状态启动用户配置的 Codex CLI App Server. Client 通过 stdio 协议读取当前登录账号的用量限制, Reset Credits 和 Token Analytics, Component 在 Detail Metadata 展示额度和汇总指标, 在左侧展示 Reset Credit 明细, 并以本地生成的 SVG 双进度条比较周额度剩余与时间剩余, 同时展示按最新 API `startDate` 对齐 UTC 日历的 365 天 Token 用量热力图. 热力图按周列出, 按星期分行, 用 10 级绿色正值强度区分 Token 用量, 明确区分零值和无记录日期, 并展示数据截止日期与图例. 周窗口按时长选择, 时间每分钟本地更新, 额度通过手动刷新更新.
+- DHCP Extension 通过 `/usr/sbin/networksetup` 列出网络服务, 并在用户确认后切换 DHCP 或应用手动 IPv4 与 DNS. 命名配置保存在 Extension 隔离的 Raycast LocalStorage.
 
 ## 5. AI Tool 数据流
 
@@ -102,6 +104,7 @@ JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情�
 | `shanhh-nsfw` | User-configured Btsow and JavBus hosts | `btsowHost`, `javbusHost` |
 | `shanhh-aitrans` | User-configured OpenAI-compatible API | `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3` |
 | `shanhh-openai-usage` | Local Codex App Server using the current ChatGPT login | `codexBinPath` |
+| `shanhh-dhcp` | macOS `networksetup` | No preferences; named profiles in Raycast LocalStorage |
 
 配置由 Raycast Preferences 提供. 本地认证文件只在运行时读取, 不进入仓库.
 
@@ -114,5 +117,6 @@ JavBus 详情与 magnet Tool 只接受 configured HTTPS origin. AI 查询详情�
 - `shanhh-myip`: No preferences.
 - `shanhh-aitrans`: `apiBaseUrl`, `apiKey`, `model`, `targetLanguage1`, `targetLanguage2`, `targetLanguage3`.
 - `shanhh-openai-usage`: `codexBinPath`.
+- `shanhh-dhcp`: No preferences.
 
 配置格式和安全要求见 [development.md](./development.md).
