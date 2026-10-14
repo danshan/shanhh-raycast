@@ -9,6 +9,8 @@ Shanhh DHCP lists macOS network services, switches a selected service to DHCP, a
 - Apply a saved profile to a selected network service after confirmation.
 - Keep profiles in Raycast LocalStorage, isolated to this Extension.
 
+The Extension uses a dedicated network-socket and mode-selector icon. It does not reuse the My IP Extension artwork.
+
 System configuration uses `/usr/sbin/networksetup`. macOS may require authorization to apply changes. This Extension manages IPv4 and DNS settings; it does not modify IPv6, proxies, or search domains.
 
 ## Development

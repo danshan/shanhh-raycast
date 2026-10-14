@@ -4,7 +4,7 @@
   "type": "module",
   "title": "Shanhh DHCP",
   "description": "Manage macOS network services and saved manual IPv4 configurations.",
-  "icon": "command-icon.png",
+  "icon": "network-settings-icon.png",
   "author": "danshan",
   "owner": "shanhh",
   "categories": ["Productivity"],
